@@ -272,6 +272,49 @@ reinforced concrete hold a 27-channel core; earth roofs do not.
 - Keep feedwater pumps on more than one power source. A station blackout means no cooling.
 - Spent fuel stays deadly. Move it by tube, cool it in a basin, never carry it.
 
+## A large plant: Kernkraftwerk Funkstadt
+
+The **DARC Funkstadt** sample map (from the Ham Radio mod) has a full-size plant built with Fission, running when
+the map loads. It powers the whole map through Gridworks, including a 500 kW longwave transmitter. See the
+[Ham Radio handbook](https://mchamradio.antwire.net/handbook/hamradio/#nuclear-power-plant) for the tour.
+
+![Kernkraftwerk Funkstadt in the DARC Funkstadt map](docs/img/funkstadt_plant.jpg)
+
+- **Core**: 6 × 6 columns of three LEU fuel channels (108 MW thermal) at pitch 2 in graphite, 43 control rod columns
+  (in every gap between four fuel columns, and in three lines between neighbouring fuel columns), a beryllium shell. k = 1.20 with the rods
+  out, 0.87 with them in, still 1.11 at half burnup. In AUTO at 15 MW the rods sit at about 42 %.
+- **Refuelling**: one fuel transfer tube on top of each column (1.0.1: assemblies pass up and down through the
+  column), a manifold over the core, out through the shield in dog-legs to the fresh fuel racks and the spent fuel pool.
+- **Shield**: six blocks of heavy concrete all round and on top, which also holds a full prompt critical excursion
+  (a 108-channel core needs 684 per column; six layers give 840).
+- **Steam and water**: one outlet to four turbine sets and three water-cooled condensers; three feedwater pumps at a
+  sea-water intake, powered at 10 kV from the 110 kV grid through a station transformer.
+
+```
+ top view of a fuel layer      F fuel channel   R control rod   G graphite   B beryllium
+   B B B B B B B B B B B B B B B
+   B G G G G G G G G G G G G G B
+   B G F R F G F R F G F R F G B
+   B G G R G R G R G R G R G G B
+   B G F R F G F R F G F R F G B
+   B G G R G R G R G R G R G G B
+   B G F R F G F R F G F R F G B
+   B G G R G R G R G R G R G G B
+   B G F R F G F R F G F R F G B
+   B G G R G R G R G R G R G G B
+   B G F R F G F R F G F R F G B
+   B G G R G R G R G R G R G G B
+   B G F R F G F R F G F R F G B
+   B G G G G G G G G G G G G G B
+   B B B B B B B B B B B B B B B
+```
+
+## Changes
+
+- **1.0.1**: a column of stacked fuel channels is one pressure tube, so a tube on top of the column refuels every
+  channel in it. Tube routing counts the tubes it travels (up to 2048), not every block it looks at, so pushes no
+  longer give up early in large plants.
+
 ## Building from source
 
 ```
