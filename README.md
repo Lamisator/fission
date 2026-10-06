@@ -18,7 +18,7 @@ Fission needs **Fabric API**, **Gridworks 1.1.2** or newer and **Radiation 1.3.0
 
 1. In Prism Launcher, make a Minecraft **26.3** instance with **Fabric** (loader 0.19.5 or newer).
 2. **Edit → Mods → Download mods**: install **Fabric API**.
-3. **Add file**: `gridworks-1.1.2.jar`, `radiation-1.3.0.jar` and `fission-1.0.0.jar`.
+3. **Add file**: `gridworks-1.1.2.jar`, `radiation-1.3.0.jar` and `fission-1.0.1.jar`.
 
 For a server, put the same jars into its `mods` folder. Every player needs them too.
 
@@ -205,7 +205,7 @@ Radiation 1.3.0).
 | Block | |
 |---|---|
 | **Fuel Rack** | Fresh fuel. Sends it down fuel transfer tubes to empty fuel channels. |
-| **Fuel Transfer Tube** | Moves fuel assemblies. Spent assemblies leave the fuel channels by tube on their own (on-load refuelling). |
+| **Fuel Transfer Tube** | Moves fuel assemblies. Spent assemblies leave the fuel channels by tube on their own (on-load refuelling). A column of stacked fuel channels is one pressure tube: assemblies travel up and down through it, so one tube on top of each column reaches every channel in it. |
 | **Holding Basin** | A pool for short-lived isotopes and spent fuel; the water lets through only 0.02 %. Canisters that have decayed become harmless empty canisters. Spent fuel that has cooled for a day goes on by tube to reprocessing. |
 | **Reprocessing Plant** | 230 V, 3 kW, heavily shielded (5 % gets out). Dissolves a cooled spent assembly into one canister per isotope, with as much as the rod really holds, plus plutonium and depleted uranium. Sends them out by isotope pipe. |
 | **Isotope Pipe** | Moves canisters, plutonium, depleted uranium and debris. Each item goes to the nearest block that takes it. |
@@ -275,7 +275,7 @@ reinforced concrete hold a 27-channel core; earth roofs do not.
 ## Building from source
 
 ```
-./gradlew build                                # build/libs/fission-1.0.0.jar
+./gradlew build                                # build/libs/fission-1.0.1.jar
 ./gradlew runClientGameTest [-Pscenes=plant]   # the screenshot tour (plant, fuel, meltdown, explosion)
 ```
 
