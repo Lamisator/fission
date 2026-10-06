@@ -9,6 +9,7 @@ storage drums. Lose the cooling and the core melts into corium; make it prompt c
 the roof off, unless the roof is thick concrete. All radiation goes through the **Radiation** mod.
 
 Online handbook: https://mchamradio.antwire.net/handbook/fission/
+Source code: [github.com/Lamisator/fission](https://github.com/Lamisator/fission)
 
 ![A small power plant: reactor, feedwater pump in its pond, turbine hall and control room](docs/img/plant_overview.png)
 
