@@ -279,15 +279,17 @@ The **DARC Funkstadt** sample map (from the Ham Radio mod) has a full-size plant
 the map loads. It powers the whole map through Gridworks, including a 500 kW longwave transmitter. See the
 [Ham Radio handbook](https://mchamradio.antwire.net/handbook/hamradio/#nuclear-power-plant) for the tour.
 
-![Kernkraftwerk Funkstadt in the DARC Funkstadt map](docs/img/funkstadt_plant.jpg)
+![Kernkraftwerk Funkstadt in the DARC Funkstadt map: the open core seen from the gallery](docs/img/funkstadt_plant.jpg)
 
 - **Core**: 6 × 6 columns of three LEU fuel channels (108 MW thermal) at pitch 2 in graphite, 43 control rod columns
   (in every gap between four fuel columns, and in three lines between neighbouring fuel columns), a beryllium shell. k = 1.20 with the rods
   out, 0.87 with them in, still 1.11 at half burnup. In AUTO at 15 MW the rods sit at about 42 %.
-- **Refuelling**: one fuel transfer tube on top of each column (1.0.1: assemblies pass up and down through the
-  column), a manifold over the core, out through the shield in dog-legs to the fresh fuel racks and the spent fuel pool.
-- **Shield**: six blocks of heavy concrete all round and on top, which also holds a full prompt critical excursion
-  (a 108-channel core needs 684 per column; six layers give 840).
+- **Refuelling**: standpipes on top of every column (1.0.1: assemblies pass up and down through the column), a
+  manifold above them, out through the hall wall to the fresh fuel racks and the spent fuel pool.
+- **Open, RBMK style** (since the night of 6 October 2026): no containment and no shield. The core stands open on a
+  steel pedestal in a glass-walled, neon-lit reactor hall, its top layers removed so the lattice shows (k drops from
+  1.20 to 1.19). Galleries read about 0.4 rad/s, the control room behind a heavy concrete wall 0.016. Nothing holds an
+  excursion any more.
 - **Steam and water**: one outlet to four turbine sets and three water-cooled condensers; three feedwater pumps at a
   sea-water intake, powered at 10 kV from the 110 kV grid through a station transformer.
 
