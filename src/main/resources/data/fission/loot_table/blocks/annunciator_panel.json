@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "rolls": 1,
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "fission:annunciator_panel"
+        }
+      ]
+    }
+  ],
+  "random_sequence": "fission:blocks/annunciator_panel"
+}

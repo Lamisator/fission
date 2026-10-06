@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "Z": "fission:zircaloy_cladding",
+    "E": "fission:enriched_uranium"
+  },
+  "pattern": [
+    "ZEZ",
+    "ZEZ",
+    "ZEZ"
+  ],
+  "result": {
+    "id": "fission:leu_fuel_rod"
+  }
+}

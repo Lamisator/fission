@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "Z": "fission:zircaloy_cladding",
+    "D": "fission:depleted_uranium",
+    "P": "fission:plutonium"
+  },
+  "pattern": [
+    "ZDZ",
+    "ZPZ",
+    "ZDZ"
+  ],
+  "result": {
+    "id": "fission:mox_fuel_rod"
+  }
+}

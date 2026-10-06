@@ -1,0 +1,74 @@
+{
+  "scram": {
+    "sounds": [
+      {
+        "name": "fission:scram",
+        "attenuation_distance": 48
+      }
+    ],
+    "subtitle": "subtitles.fission.scram"
+  },
+  "alarm": {
+    "sounds": [
+      {
+        "name": "fission:alarm",
+        "attenuation_distance": 24
+      }
+    ],
+    "subtitle": "subtitles.fission.alarm"
+  },
+  "rad_alarm": {
+    "sounds": [
+      {
+        "name": "fission:rad_alarm",
+        "attenuation_distance": 16
+      }
+    ],
+    "subtitle": "subtitles.fission.rad_alarm"
+  },
+  "relief_valve": {
+    "sounds": [
+      {
+        "name": "fission:relief_valve",
+        "attenuation_distance": 48
+      }
+    ],
+    "subtitle": "subtitles.fission.relief_valve"
+  },
+  "turbine": {
+    "sounds": [
+      {
+        "name": "fission:turbine",
+        "attenuation_distance": 24
+      }
+    ],
+    "subtitle": "subtitles.fission.turbine"
+  },
+  "corium": {
+    "sounds": [
+      {
+        "name": "fission:corium",
+        "attenuation_distance": 24
+      }
+    ],
+    "subtitle": "subtitles.fission.corium"
+  },
+  "steam_hiss": {
+    "sounds": [
+      {
+        "name": "fission:steam_hiss",
+        "attenuation_distance": 24
+      }
+    ],
+    "subtitle": "subtitles.fission.steam_hiss"
+  },
+  "reactor_boom": {
+    "sounds": [
+      {
+        "name": "fission:reactor_boom",
+        "attenuation_distance": 256
+      }
+    ],
+    "subtitle": "subtitles.fission.reactor_boom"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "side": "fission:block/fuel_channel_side_1",
+    "end": "fission:block/fuel_channel_top_1_1"
+  }
+}

@@ -1,0 +1,10 @@
+{
+	"schemaVersion": 1,
+	"id": "fission-gametest",
+	"version": "1.0.0",
+	"name": "Fission screenshot tests",
+	"environment": "*",
+	"entrypoints": {
+		"fabric-client-gametest": ["net.antwire.fission.gametest.ReactorTour"]
+	}
+}

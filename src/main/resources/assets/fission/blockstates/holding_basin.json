@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "fission:block/holding_basin"
+    },
+    "facing=east": {
+      "model": "fission:block/holding_basin",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "fission:block/holding_basin",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "fission:block/holding_basin",
+      "y": 270
+    }
+  }
+}

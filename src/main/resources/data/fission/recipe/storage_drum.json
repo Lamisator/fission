@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "C": "radiation:reinforced_concrete"
+  },
+  "pattern": [
+    "ICI",
+    "I I",
+    "ICI"
+  ],
+  "result": {
+    "id": "fission:storage_drum",
+    "count": 2
+  }
+}

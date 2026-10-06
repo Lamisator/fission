@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:blasting",
+  "category": "blocks",
+  "ingredient": "minecraft:coal_block",
+  "result": {
+    "id": "fission:graphite_moderator"
+  },
+  "experience": 0.3,
+  "cookingtime": 200
+}

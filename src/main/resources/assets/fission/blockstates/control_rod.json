@@ -1,0 +1,31 @@
+{
+  "variants": {
+    "insertion=0": {
+      "model": "fission:block/control_rod_0"
+    },
+    "insertion=1": {
+      "model": "fission:block/control_rod_1"
+    },
+    "insertion=2": {
+      "model": "fission:block/control_rod_2"
+    },
+    "insertion=3": {
+      "model": "fission:block/control_rod_3"
+    },
+    "insertion=4": {
+      "model": "fission:block/control_rod_4"
+    },
+    "insertion=5": {
+      "model": "fission:block/control_rod_5"
+    },
+    "insertion=6": {
+      "model": "fission:block/control_rod_6"
+    },
+    "insertion=7": {
+      "model": "fission:block/control_rod_7"
+    },
+    "insertion=8": {
+      "model": "fission:block/control_rod_8"
+    }
+  }
+}

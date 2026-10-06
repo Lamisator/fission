@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "fission:block/reactor_controller"
+    },
+    "facing=east": {
+      "model": "fission:block/reactor_controller",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "fission:block/reactor_controller",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "fission:block/reactor_controller",
+      "y": 270
+    }
+  }
+}

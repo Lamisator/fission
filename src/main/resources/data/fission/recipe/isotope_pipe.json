@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "redstone",
+  "ingredients": [
+    "minecraft:iron_ingot",
+    "minecraft:iron_ingot",
+    "minecraft:gold_ingot"
+  ],
+  "result": {
+    "id": "fission:isotope_pipe",
+    "count": 8
+  }
+}

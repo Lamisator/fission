@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "fission:reactor_vessel",
+    "fission:feedwater_inlet",
+    "fission:steam_outlet",
+    "fission:relief_valve"
+  ]
+}

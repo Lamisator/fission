@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "C": "radiation:heavy_concrete",
+    "G": "minecraft:glass_pane",
+    "P": "minecraft:piston"
+  },
+  "pattern": [
+    "CGC",
+    "CPC",
+    "CCC"
+  ],
+  "result": {
+    "id": "fission:reprocessing_plant"
+  }
+}

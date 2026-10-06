@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "front": "fission:block/feedwater_pump_front",
+    "side": "fission:block/feedwater_pump_side_1",
+    "top": "fission:block/feedwater_pump_side_1"
+  }
+}

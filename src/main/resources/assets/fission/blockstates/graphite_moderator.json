@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "fission:block/graphite_moderator"
+    }
+  }
+}

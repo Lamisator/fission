@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:iron_ingot",
+    "minecraft:iron_ingot",
+    "minecraft:quartz"
+  ],
+  "result": {
+    "id": "fission:zircaloy_cladding",
+    "count": 4
+  }
+}

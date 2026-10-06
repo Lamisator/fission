@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "fission:block/gas_centrifuge"
+    },
+    "facing=east": {
+      "model": "fission:block/gas_centrifuge",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "fission:block/gas_centrifuge",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "fission:block/gas_centrifuge",
+      "y": 270
+    }
+  }
+}

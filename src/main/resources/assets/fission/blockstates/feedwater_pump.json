@@ -1,0 +1,34 @@
+{
+  "variants": {
+    "facing=north,on=false": {
+      "model": "fission:block/feedwater_pump_0"
+    },
+    "facing=north,on=true": {
+      "model": "fission:block/feedwater_pump_1"
+    },
+    "facing=east,on=false": {
+      "model": "fission:block/feedwater_pump_0",
+      "y": 90
+    },
+    "facing=east,on=true": {
+      "model": "fission:block/feedwater_pump_1",
+      "y": 90
+    },
+    "facing=south,on=false": {
+      "model": "fission:block/feedwater_pump_0",
+      "y": 180
+    },
+    "facing=south,on=true": {
+      "model": "fission:block/feedwater_pump_1",
+      "y": 180
+    },
+    "facing=west,on=false": {
+      "model": "fission:block/feedwater_pump_0",
+      "y": 270
+    },
+    "facing=west,on=true": {
+      "model": "fission:block/feedwater_pump_1",
+      "y": 270
+    }
+  }
+}

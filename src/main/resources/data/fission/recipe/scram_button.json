@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "redstone",
+  "ingredients": [
+    "minecraft:red_dye",
+    "minecraft:stone_button",
+    "minecraft:iron_ingot",
+    "minecraft:glass_pane"
+  ],
+  "result": {
+    "id": "fission:scram_button"
+  }
+}

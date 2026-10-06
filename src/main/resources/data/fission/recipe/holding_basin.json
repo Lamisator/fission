@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "C": "radiation:reinforced_concrete",
+    "W": "minecraft:water_bucket"
+  },
+  "pattern": [
+    "CWC",
+    "CWC",
+    "CCC"
+  ],
+  "result": {
+    "id": "fission:holding_basin"
+  }
+}

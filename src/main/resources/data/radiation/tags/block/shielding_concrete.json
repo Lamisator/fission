@@ -1,0 +1,8 @@
+{
+  "replace": false,
+  "values": [
+    "fission:graphite_moderator",
+    "fission:beryllium_reflector",
+    "fission:holding_basin"
+  ]
+}

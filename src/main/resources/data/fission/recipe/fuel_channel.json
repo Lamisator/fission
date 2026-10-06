@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "Z": "fission:zircaloy_cladding",
+    "G": "minecraft:glass"
+  },
+  "pattern": [
+    "ZGZ",
+    "Z Z",
+    "ZGZ"
+  ],
+  "result": {
+    "id": "fission:fuel_channel",
+    "count": 2
+  }
+}

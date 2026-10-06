@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "Z": "fission:zircaloy_cladding",
+    "Y": "fission:yellowcake"
+  },
+  "pattern": [
+    "ZYZ",
+    "ZYZ",
+    "ZYZ"
+  ],
+  "result": {
+    "id": "fission:natural_fuel_rod"
+  }
+}

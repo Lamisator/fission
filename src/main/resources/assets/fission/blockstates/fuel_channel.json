@@ -1,0 +1,22 @@
+{
+  "variants": {
+    "glow=false,load=0": {
+      "model": "fission:block/fuel_channel_0_0"
+    },
+    "glow=true,load=0": {
+      "model": "fission:block/fuel_channel_0_1"
+    },
+    "glow=false,load=1": {
+      "model": "fission:block/fuel_channel_1_0"
+    },
+    "glow=true,load=1": {
+      "model": "fission:block/fuel_channel_1_1"
+    },
+    "glow=false,load=2": {
+      "model": "fission:block/fuel_channel_2_0"
+    },
+    "glow=true,load=2": {
+      "model": "fission:block/fuel_channel_2_1"
+    }
+  }
+}

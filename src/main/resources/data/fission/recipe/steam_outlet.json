@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "redstone",
+  "ingredients": [
+    "fission:reactor_vessel",
+    "fission:steam_pipe"
+  ],
+  "result": {
+    "id": "fission:steam_outlet"
+  }
+}

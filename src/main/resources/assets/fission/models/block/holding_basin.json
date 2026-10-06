@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "top": "fission:block/holding_basin_top",
+    "side": "fission:block/holding_basin_side",
+    "bottom": "fission:block/holding_basin_side"
+  }
+}

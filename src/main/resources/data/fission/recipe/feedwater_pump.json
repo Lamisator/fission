@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "P": "minecraft:piston",
+    "W": "fission:water_pipe",
+    "M": "minecraft:copper_block"
+  },
+  "pattern": [
+    "IPI",
+    "WMW",
+    "III"
+  ],
+  "result": {
+    "id": "fission:feedwater_pump"
+  }
+}

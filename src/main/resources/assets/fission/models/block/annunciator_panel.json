@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "front": "fission:block/panel_front",
+    "side": "fission:block/control_side",
+    "top": "fission:block/control_side"
+  }
+}

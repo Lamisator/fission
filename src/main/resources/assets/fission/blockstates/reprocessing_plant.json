@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "fission:block/reprocessing_plant"
+    },
+    "facing=east": {
+      "model": "fission:block/reprocessing_plant",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "fission:block/reprocessing_plant",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "fission:block/reprocessing_plant",
+      "y": 270
+    }
+  }
+}

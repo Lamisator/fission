@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "side": "fission:block/control_rod_side",
+    "end": "fission:block/control_rod_top_0"
+  }
+}

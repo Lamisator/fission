@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "G": "minecraft:glass_pane",
+    "R": "minecraft:redstone",
+    "K": "minecraft:comparator"
+  },
+  "pattern": [
+    "GGG",
+    "RKR",
+    "III"
+  ],
+  "result": {
+    "id": "fission:reactor_console"
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "variants": {
+    "facing=north,spinning=false": {
+      "model": "fission:block/steam_turbine"
+    },
+    "facing=north,spinning=true": {
+      "model": "fission:block/steam_turbine"
+    },
+    "facing=east,spinning=false": {
+      "model": "fission:block/steam_turbine",
+      "y": 90
+    },
+    "facing=east,spinning=true": {
+      "model": "fission:block/steam_turbine",
+      "y": 90
+    },
+    "facing=south,spinning=false": {
+      "model": "fission:block/steam_turbine",
+      "y": 180
+    },
+    "facing=south,spinning=true": {
+      "model": "fission:block/steam_turbine",
+      "y": 180
+    },
+    "facing=west,spinning=false": {
+      "model": "fission:block/steam_turbine",
+      "y": 270
+    },
+    "facing=west,spinning=true": {
+      "model": "fission:block/steam_turbine",
+      "y": 270
+    }
+  }
+}

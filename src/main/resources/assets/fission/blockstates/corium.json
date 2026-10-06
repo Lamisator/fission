@@ -1,0 +1,52 @@
+{
+  "variants": {
+    "heat=0": {
+      "model": "fission:block/corium_cool"
+    },
+    "heat=1": {
+      "model": "fission:block/corium_cool"
+    },
+    "heat=2": {
+      "model": "fission:block/corium_cool"
+    },
+    "heat=3": {
+      "model": "fission:block/corium_cool"
+    },
+    "heat=4": {
+      "model": "fission:block/corium_cool"
+    },
+    "heat=5": {
+      "model": "fission:block/corium_cool"
+    },
+    "heat=6": {
+      "model": "fission:block/corium_cool"
+    },
+    "heat=7": {
+      "model": "fission:block/corium_cool"
+    },
+    "heat=8": {
+      "model": "fission:block/corium_hot"
+    },
+    "heat=9": {
+      "model": "fission:block/corium_hot"
+    },
+    "heat=10": {
+      "model": "fission:block/corium_hot"
+    },
+    "heat=11": {
+      "model": "fission:block/corium_hot"
+    },
+    "heat=12": {
+      "model": "fission:block/corium_hot"
+    },
+    "heat=13": {
+      "model": "fission:block/corium_hot"
+    },
+    "heat=14": {
+      "model": "fission:block/corium_hot"
+    },
+    "heat=15": {
+      "model": "fission:block/corium_hot"
+    }
+  }
+}

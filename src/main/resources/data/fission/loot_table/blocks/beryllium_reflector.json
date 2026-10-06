@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "rolls": 1,
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "fission:beryllium_reflector"
+        }
+      ]
+    }
+  ],
+  "random_sequence": "fission:blocks/beryllium_reflector"
+}
