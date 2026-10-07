@@ -87,7 +87,7 @@ final class FunkstadtExplosion {
 
 			// the cloud drifts towards the city
 			for (int t = 0; t < 4; t++) {
-				this.look(context, sp, -170.5, 80, -330.5, new Vec3(-140, 100, -200), 1);
+				this.look(context, sp, -170.5, 80, -330.5, new Vec3(-140, 165, -200), 1);
 				context.waitTicks(380);
 				for (String line : sp.getServer().computeOnServer(server -> dev.radiation.world.Clouds.describe())) {
 					System.out.println("[funkstadt] t=" + (20 * (t + 1) + 12) + " s: " + line);
@@ -97,9 +97,9 @@ final class FunkstadtExplosion {
 				this.shot(context, "funkstadt_cloud_" + (t + 1));
 
 			}
-			this.look(context, sp, -360.5, 165, -470.5, new Vec3(-170, 95, -230), 30);
+			this.look(context, sp, -360.5, 120, -470.5, new Vec3(-170, 150, -230), 30);
 			this.shot(context, "funkstadt_cloud_trail");
-			this.look(context, sp, -215.5, 72, -312.5, new Vec3(-200, 120, -340), 10);
+			this.look(context, sp, -215.5, 72, -312.5, new Vec3(-200, 190, -340), 10);
 			this.shot(context, "funkstadt_cloud_overhead");
 			System.out.println("[funkstadt] " + sp.getServer().computeOnServer(server -> this.landed(server.overworld())));
 			for (double[] p : new double[][]{{-98, 76, -140}, {-60, 70, -96}, {-150, 70, -200}, {-190, 70, -260}, {-224, 70, -320}, {-289, 70, -114},

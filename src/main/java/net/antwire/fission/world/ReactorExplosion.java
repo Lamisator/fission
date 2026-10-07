@@ -247,7 +247,7 @@ public final class ReactorExplosion {
 			String name = RadiationApi.addSource(level, "fission_release", top, rads, radius, RadiationApi.Falloff.LINEAR, true, 2 * 24000L, 0.3F);
 			double strength = 2.2 * y * Math.clamp(Math.sqrt(fuel / 27.0), 0.5, 3.0);
 			// half of the volatile inventory goes up with the explosion; the burning core sends the rest after it
-			RadiationApi.releaseCloud(level, top, strength * open / 2, 10, 30);
+			RadiationApi.releaseCloud(level, top, strength * open / 2, 10, 85);
 			Fission.LOGGER.warn("Containment breached ({} % of the core open): source '{}' ({} rad/s, {} blocks), cloud {} rad/s",
 					Math.round(open * 100), name, rads, radius, String.format(java.util.Locale.ROOT, "%.2f", strength));
 		} else {

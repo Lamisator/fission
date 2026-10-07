@@ -177,7 +177,7 @@ public final class ReactorFires {
 		if (f.open > 0 && intensity > 0.02 && now - f.lastPuff >= PUFF_TICKS) {
 			f.lastPuff = now;
 			RadiationApi.releaseCloud(level, new Vec3(c.x, f.top + 2, c.z), f.strength * PUFF_SHARE * f.open * intensity,
-					4 + 0.5 * Math.max(f.maxX - f.minX, f.maxZ - f.minZ), 30);
+					4 + 0.5 * Math.max(f.maxX - f.minX, f.maxZ - f.minZ), 85);
 		}
 		return null;
 	}
@@ -200,14 +200,14 @@ public final class ReactorFires {
 	}
 
 	/**
-	 * Flames on the core and a column of black smoke above it, widening as it rises: some forty blocks into the sky where
-	 * the core is open, up to the roof where there is one (it spreads out under it).
+	 * Flames on the core and a column of black smoke above it, widening as it rises: eighty blocks into the sky, where the clouds form,
+	 * where the core is open, up to the roof where there is one (it spreads out under it).
 	 */
 	private static void smoke(ServerLevel level, Fire f, Vec3 c, double intensity) {
 		double w = Math.max(1.5, (f.maxX - f.minX) / 2.0);
 		int roof = level.isLoaded(BlockPos.containing(c)) ? level.getHeight(Heightmap.Types.MOTION_BLOCKING, (int) Math.floor(c.x), (int) Math.floor(c.z)) : f.top;
 		boolean open = f.open > 0 && roof <= f.top + 1;
-		double height = open ? 44 : Math.max(3, roof - f.top - 2);
+		double height = open ? 80 : Math.max(3, roof - f.top - 2);
 		int per = Math.max(2, (int) Math.round(6 * intensity));
 		// the column itself, drawn by the clients (the particles are the flames and the smoke close to the core)
 		RadiationApi.smokeColumn(level, "fission_fire_" + f.minX + "_" + f.minZ, new Vec3(c.x, f.top + 1, c.z), w, height, 30);

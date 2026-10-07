@@ -21,7 +21,7 @@ Fission needs **Fabric API**, **Gridworks 1.1.2** or newer and **Radiation 1.5.0
 
 1. In Prism Launcher, make a Minecraft **26.3** instance with **Fabric** (loader 0.19.5 or newer).
 2. **Edit → Mods → Download mods**: install **Fabric API**.
-3. **Add file**: `gridworks-1.1.2.jar`, `radiation-1.5.0.jar` and `fission-1.2.0.jar`.
+3. **Add file**: `gridworks-1.1.2.jar`, `radiation-1.5.0.jar` and `fission-1.2.1.jar`.
 
 For a server, put the same jars into its `mods` folder. Every player needs them too.
 
@@ -287,7 +287,7 @@ up. `/fission fires` shows burning cores (how much is open to the sky, how much 
 `/fission extinguish [radius]` (operators) puts them out at once. Molten corium is a separate danger: it does not
 feed the fire, and sand cannot rest on it.
 
-**The clouds** are the Radiation mod's (1.5.0): they rise 30 to 60 blocks above the ground and drift with the
+**The clouds** are the Radiation mod's (1.5.0): they rise 85 to 165 blocks above the ground (higher the farther they drift) and drift with the
 wind, spreading as they go. Under them the dose rate is up to a few rad/s near the plant, tenths of a rad/s
 hundreds of blocks away; roofs shield people indoors. Behind them they leave **fallout**: decaying Radiation
 sources, 85 % fading like iodine-131 (half-life 8 days), 15 % staying like caesium-137. **Rain** washes a cloud out
@@ -371,6 +371,7 @@ fallout along its track. Close to the plant the ground reads 2 rad/s.
 
 ## Changes
 
+- **1.2.1**: the smoke column rises 80 blocks and the clouds float about 85 blocks above the ground (about three times higher than before).
 - **1.2.0** (needs Radiation 1.5.0): a blown-up core keeps burning, with smoke rising from it and - where it is open
   to the sky - a radioactive cloud every half minute until the fire is smothered (sand, gravel, concrete, water on the
   core) or burns out after ten days; `/fission fires`, `/fission extinguish`. Clouds and wind moved to the Radiation mod
@@ -390,7 +391,7 @@ fallout along its track. Close to the plant the ground reads 2 rad/s.
 ## Building from source
 
 ```
-./gradlew build                                # build/libs/fission-1.2.0.jar
+./gradlew build                                # build/libs/fission-1.2.1.jar
 ./gradlew runClientGameTest [-Pscenes=plant]   # the screenshot tour (plant, fuel, meltdown, explosion, cloud)
 ./gradlew runClientGameTest -Pmap=<unpacked DARC_Funkstadt> -PmapMods=<hamradio.jar,redbutton.jar>
                                                # the Funkstadt plant goes prompt critical
