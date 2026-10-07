@@ -17,11 +17,11 @@ Source code: [github.com/Lamisator/fission](https://github.com/Lamisator/fission
 
 ## Installing
 
-Fission needs **Fabric API**, **Gridworks 1.1.2** or newer and **Radiation 1.4.0** or newer.
+Fission needs **Fabric API**, **Gridworks 1.1.2** or newer and **Radiation 1.5.0** or newer.
 
 1. In Prism Launcher, make a Minecraft **26.3** instance with **Fabric** (loader 0.19.5 or newer).
 2. **Edit → Mods → Download mods**: install **Fabric API**.
-3. **Add file**: `gridworks-1.1.2.jar`, `radiation-1.4.0.jar` and `fission-1.1.0.jar`.
+3. **Add file**: `gridworks-1.1.2.jar`, `radiation-1.5.0.jar` and `fission-1.2.0.jar`.
 
 For a server, put the same jars into its `mods` folder. Every player needs them too.
 
@@ -201,7 +201,7 @@ Because time runs at Minecraft speed, I-131 is gone after a few Minecraft weeks;
 assembly that has run 15 MWd and cooled for a day gives about **1 700 rad/s at one metre**: death in
 under a second. Carried in the inventory it is four times that. Fresh fuel is harmless (MOX a little).
 Hazmat suits and Rad-X help as with any radiation. Concrete, water and heavy materials shield (see
-Radiation 1.4.0: three blocks of concrete leave 0.1 %).
+Radiation 1.5.0: three blocks of concrete leave 0.1 %).
 
 ## Handling fuel and waste
 
@@ -273,21 +273,29 @@ to 300 blocks far, a third of them downwind. They radiate wherever they land, bu
 and fields on fire, and picking them up is a bad idea. The rest of the fuel becomes corium. The open shaft
 itself radiates about 4 rad/s per fuel channel, fading over days.
 
-**The cloud.** An open core also sends up a **radioactive cloud**: half with the explosion, the rest in three
-puffs over the next minute while the graphite burns (a column of black smoke and flame stands over the
-core for two minutes). Each puff rises to some 30–60 blocks above the ground and drifts with the wind,
-spreading as it goes. Under it the dose rate is up to a few rad/s near the plant, tenths of a rad/s
-hundreds of blocks away; roofs shield people indoors. Behind it, it leaves **fallout** on the ground: every
-32 blocks a decaying Radiation source, 85 % of it fading like iodine-131 (half-life 8 days), 15 % staying
-like caesium-137. A cloud fades away when it has spread too thin, typically after two to four kilometres.
-Clients see clouds up to a kilometre away (within their render distance), as dark banks of smoke.
+**The fire.** The graphite left in the shaft **keeps burning**, as it did for ten days at Chernobyl: flames on
+the core and a column of black smoke above it. Under a roof the smoke stays in the building. Where the core is
+open to the sky - right after the explosion, or later when someone takes the roof off - the smoke rises 40 blocks
+into the sky and carries the radioactivity away: half of it goes up with the explosion as a big **radioactive
+cloud**, and from then on another cloud every half minute, a continuous trail downwind for as long as the fire
+burns. The fire weakens over days and burns out after ten.
 
-**The wind** has no Minecraft equivalent, so it is made up, the same for everyone: each world has a
-prevailing direction (from its seed) that swings back and forth over the days, 3–6 m/s, faster in rain
-and thunderstorms. `/fission wind` says where it blows; operators can fix it (`/fission wind set <towards°>
-<m/s>`, 0° = north, 90° = east) or let it change again (`/fission wind natural`). `/fission clouds` lists
-the clouds on their way. Radiation 1.4 makes the fallout change the land: crops slow down, trees lose
-their leaves, grass dies (see the Radiation handbook).
+**Putting it out** works as it did then: **smother it**. Dump sand, gravel, concrete, water - anything that does
+not burn - onto the core, from above or down the shaft (a crane or a dispenser saves your life). When nine tenths
+of the graphite still burning is covered for half a minute, the fire is out; the smoke stops and no more clouds go
+up. `/fission fires` shows burning cores (how much is open to the sky, how much is covered);
+`/fission extinguish [radius]` (operators) puts them out at once. Molten corium is a separate danger: it does not
+feed the fire, and sand cannot rest on it.
+
+**The clouds** are the Radiation mod's (1.5.0): they rise 30 to 60 blocks above the ground and drift with the
+wind, spreading as they go. Under them the dose rate is up to a few rad/s near the plant, tenths of a rad/s
+hundreds of blocks away; roofs shield people indoors. Behind them they leave **fallout**: decaying Radiation
+sources, 85 % fading like iodine-131 (half-life 8 days), 15 % staying like caesium-137. **Rain** washes a cloud out
+within a few hundred blocks and leaves hot spots where it rained. `/wind` says where the wind blows (operators:
+`/radiation wind set <towards°> <m/s>`, `/radiation wind natural`); `/radiation clouds` lists the clouds. The
+fallout changes the land: crops slow down, trees lose their leaves, grass dies (see the Radiation handbook).
+
+![The burning core: a column of black smoke, with the first cloud drifting away on the left](docs/img/core_fire_smoke.jpg)
 
 | Before | Seconds after | Earth roof | Concrete roof |
 |---|---|---|---|
@@ -363,6 +371,12 @@ fallout along its track. Close to the plant the ground reads 2 rad/s.
 
 ## Changes
 
+- **1.2.0** (needs Radiation 1.5.0): a blown-up core keeps burning, with smoke rising from it and - where it is open
+  to the sky - a radioactive cloud every half minute until the fire is smothered (sand, gravel, concrete, water on the
+  core) or burns out after ten days; `/fission fires`, `/fission extinguish`. Clouds and wind moved to the Radiation mod
+  (`/wind`, `/radiation wind`, `/radiation clouds`), where rain now washes clouds out. The graphite left in the shaft
+  is no longer blown away by the core's own blast.
+
 - **1.1.0** (needs Radiation 1.4.0): prompt critical excursions blow away everything that cannot hold the blast in a
   cone up to 64 blocks above the core (a hall roof included), throw irradiated graphite and fuel fragments (new block)
   hundreds of blocks high and far, and release a radioactive cloud that drifts with a made-up wind and leaves decaying
@@ -376,7 +390,7 @@ fallout along its track. Close to the plant the ground reads 2 rad/s.
 ## Building from source
 
 ```
-./gradlew build                                # build/libs/fission-1.1.0.jar
+./gradlew build                                # build/libs/fission-1.2.0.jar
 ./gradlew runClientGameTest [-Pscenes=plant]   # the screenshot tour (plant, fuel, meltdown, explosion, cloud)
 ./gradlew runClientGameTest -Pmap=<unpacked DARC_Funkstadt> -PmapMods=<hamradio.jar,redbutton.jar>
                                                # the Funkstadt plant goes prompt critical

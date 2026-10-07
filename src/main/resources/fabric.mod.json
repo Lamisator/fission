@@ -18,6 +18,6 @@
 		"java": ">=25",
 		"fabric-api": "*",
 		"gridworks": ">=1.1.2",
-		"radiation": ">=1.4.0"
+		"radiation": ">=1.5.0"
 	}
 }

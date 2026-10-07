@@ -34,7 +34,7 @@ import java.util.Set;
  * blast, more right above the core, less further to the side. Columns that cannot - too few blocks, or too weak ones -
  * are thrown into the air, block by block, the roof of a reactor hall dozens of blocks up included. Out of the open core
  * fly burning, radioactive graphite and pieces of fuel, hundreds of blocks up and far over the land; and the burning core
- * sends a radioactive cloud downwind ({@link Plumes}). Enough reinforced or heavy concrete (from the Radiation mod)
+ * keeps burning ({@link ReactorFires}), sending radioactive clouds downwind as long as it is open to the sky. Enough reinforced or heavy concrete (from the Radiation mod)
  * holds the blast in: the lid stays where it is and so does the radiation.
  */
 public final class ReactorExplosion {
@@ -148,7 +148,7 @@ public final class ReactorExplosion {
 		}
 		double open = overCore == 0 ? 0 : (double) openOverCore / overCore;
 		boolean breached = openOverCore > 0;
-		Vec3 downwind = Wind.velocity(level).normalize();
+		Vec3 downwind = RadiationApi.wind(level).normalize();
 		// the core itself: most fuel becomes corium; graphite, rods and fuel fragments are thrown out where the lid failed
 		List<BlockPos> coriumAt = new ArrayList<>();
 		List<BlockPos> debris = new ArrayList<>();
@@ -197,6 +197,7 @@ public final class ReactorExplosion {
 				coriumAt.add(p);
 			}
 		}
+		List<BlockPos> stays = new ArrayList<>();
 		for (BlockPos p : debris) {
 			boolean out = failed.contains(BlockPos.asLong(p.getX(), 0, p.getZ()));
 			if (out && coreFlying < MAX_CORE_FLYING && random.nextFloat() < 0.6F) {
@@ -204,15 +205,23 @@ public final class ReactorExplosion {
 				launchCore(level, p, ModBlocks.REACTOR_DEBRIS.defaultBlockState(), downwind, y, random);
 				coreFlying++;
 			} else if (random.nextFloat() < (out ? 0.3F : 0.4F)) {
-				level.setBlock(p, ModBlocks.REACTOR_DEBRIS.defaultBlockState(), Block.UPDATE_ALL);
-				// what stays in an open core burns
-				if (out && random.nextFloat() < 0.3F && level.getBlockState(p.above()).isAir()) {
-					level.setBlock(p.above(), BaseFireBlock.getState(level, p.above()), Block.UPDATE_ALL);
-				}
+				stays.add(p);
 			}
 		}
 		// the blast in the reactor hall
 		level.explode(null, center.x, center.y, center.z, (float) (4 + 6 * y), true, Level.ExplosionInteraction.BLOCK);
+		// the graphite that stays in the shaft, burning (after the blast, which would otherwise blow it away too)
+		for (BlockPos p : stays) {
+			BlockPos at = p;
+			while (at.getY() > level.getMinY() && level.getBlockState(at.below()).canBeReplaced()) {
+				at = at.below();
+			}
+			if (!level.getBlockState(at).canBeReplaced()) continue;
+			level.setBlock(at, ModBlocks.REACTOR_DEBRIS.defaultBlockState(), Block.UPDATE_ALL);
+			if (random.nextFloat() < 0.3F && level.getBlockState(at.above()).isAir()) {
+				level.setBlock(at.above(), BaseFireBlock.getState(level, at.above()), Block.UPDATE_ALL);
+			}
+		}
 		for (BlockPos p : coriumAt) {
 			if (level.getBlockState(p).isAir() || level.getBlockState(p).canBeReplaced()) {
 				Corium.spawn(level, p, 0);
@@ -236,13 +245,17 @@ public final class ReactorExplosion {
 			float rads = (float) (4 * fuel * y * open);
 			float radius = (float) (20 + 3 * Math.sqrt(fuel) * (0.5 + y));
 			String name = RadiationApi.addSource(level, "fission_release", top, rads, radius, RadiationApi.Falloff.LINEAR, true, 2 * 24000L, 0.3F);
-			double strength = 2.2 * open * y * Math.clamp(Math.sqrt(fuel / 27.0), 0.5, 3.0);
-			Plumes.release(level, top, strength);
+			double strength = 2.2 * y * Math.clamp(Math.sqrt(fuel / 27.0), 0.5, 3.0);
+			// half of the volatile inventory goes up with the explosion; the burning core sends the rest after it
+			RadiationApi.releaseCloud(level, top, strength * open / 2, 10, 30);
 			Fission.LOGGER.warn("Containment breached ({} % of the core open): source '{}' ({} rad/s, {} blocks), cloud {} rad/s",
 					Math.round(open * 100), name, rads, radius, String.format(java.util.Locale.ROOT, "%.2f", strength));
 		} else {
 			Fission.LOGGER.info("Containment held: every column right above the core withstood the blast");
 		}
+		// the core burns, open or not; under a roof its smoke stays inside
+		ReactorFires.start(level, core.minX, core.maxX, core.minZ, core.maxZ, core.minY, core.maxY,
+				2.2 * y * Math.clamp(Math.sqrt(fuel / 27.0), 0.5, 3.0));
 	}
 
 	/** Roof, lid and whatever stood in the way: up and outwards. */

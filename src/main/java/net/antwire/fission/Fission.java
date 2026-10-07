@@ -17,7 +17,7 @@ import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.antwire.fission.command.FissionCommands;
-import net.antwire.fission.world.Plumes;
+import net.antwire.fission.world.ReactorFires;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
@@ -54,10 +54,10 @@ public class Fission implements ModInitializer {
 		BiomeModifications.addFeature(BiomeSelectors.foundInOverworld(), GenerationStep.Decoration.UNDERGROUND_ORES,
 				ResourceKey.create(Registries.PLACED_FEATURE, id("uranium_ore")));
 		ServerTickEvents.END_SERVER_TICK.register(Fission::tick);
-		ServerTickEvents.END_SERVER_TICK.register(Plumes::tick);
-		ServerLifecycleEvents.SERVER_STARTED.register(Plumes::load);
-		ServerLifecycleEvents.SERVER_STOPPING.register(server -> Plumes.unload());
-		ServerLifecycleEvents.AFTER_SAVE.register((server, flush, force) -> Plumes.save());
+		ServerTickEvents.END_SERVER_TICK.register(ReactorFires::tick);
+		ServerLifecycleEvents.SERVER_STARTED.register(ReactorFires::load);
+		ServerLifecycleEvents.SERVER_STOPPING.register(server -> ReactorFires.unload());
+		ServerLifecycleEvents.AFTER_SAVE.register((server, flush, force) -> ReactorFires.save());
 		CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> FissionCommands.register(dispatcher));
 		ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> ReactorNetwork.forget(handler.getPlayer()));
 		LOGGER.info("Fission: reactor physics loaded, {} isotopes tracked.", net.antwire.fission.nuclear.Isotope.values().length);

@@ -439,8 +439,8 @@ public class ReactorTour implements FabricClientGameTest {
 
 	private void cloud(ClientGameTestContext context, TestSingleplayerContext sp) {
 		int y = this.g;
-		sp.getServer().runCommand("fission wind set 90 4");
-		sp.getServer().runOnServer(server -> net.antwire.fission.world.Plumes.release(server.overworld(), new Vec3(0, y + 1, 0), 3.0));
+		sp.getServer().runCommand("radiation wind set 90 4");
+		sp.getServer().runOnServer(server -> dev.radiation.api.RadiationApi.releaseCloud(server.overworld(), new Vec3(0, y + 1, 0), 3.0, 10, 30));
 		context.waitTicks(60);
 		this.look(context, sp, -25.5, y + 25, -30.5, new Vec3(12, y + 20, 0));
 		this.shot(context, "cloud_near");
@@ -526,7 +526,7 @@ public class ReactorTour implements FabricClientGameTest {
 			return String.format(Locale.ROOT, "landed: %d graphite, %d fuel fragments, farthest %.0f blocks", graphite, fragments, far);
 		});
 		System.out.println("[reactor-tour] " + landed);
-		for (String line : net.antwire.fission.world.Plumes.describe()) {
+		for (String line : dev.radiation.world.Clouds.describe()) {
 			System.out.println("[reactor-tour] " + line);
 		}
 		context.waitTicks(20);

@@ -2,7 +2,6 @@ package net.antwire.fission.gametest;
 
 import dev.radiation.api.RadiationApi;
 import net.antwire.fission.registry.ModBlocks;
-import net.antwire.fission.world.Plumes;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
 import net.fabricmc.fabric.api.client.gametest.v1.context.TestSingleplayerContext;
 import net.fabricmc.fabric.api.client.gametest.v1.world.TestWorldSave;
@@ -42,7 +41,7 @@ final class FunkstadtExplosion {
 		try (TestSingleplayerContext sp = save.open()) {
 			sp.getConnection().waitForChunksRender();
 			for (String c : new String[]{"time set 5000", "weather clear", "gamerule advance_time false", "gamerule advance_weather false",
-					"gamemode creative @a", "fission wind set 330 5"}) {
+					"gamemode creative @a", "radiation wind set 330 5"}) {
 				sp.getServer().runCommand(c);
 			}
 			context.runOnClient(mc -> mc.options.renderDistance().set(16));
@@ -53,7 +52,7 @@ final class FunkstadtExplosion {
 			System.out.println("[funkstadt] before: " + sp.getServer().computeOnServer(server -> this.roof(server.overworld())) + ", "
 					+ sp.getServer().computeOnServer(server -> String.format(Locale.ROOT, "reactor %s",
 					server.overworld().getBlockEntity(CONTROLLER) == null ? "missing" : "present")));
-			System.out.println("[funkstadt] " + sp.getServer().computeOnServer(server -> net.antwire.fission.world.Wind.describe(server.overworld())));
+			System.out.println("[funkstadt] " + sp.getServer().computeOnServer(server -> dev.radiation.world.Wind.describe(server.overworld())));
 
 			// prompt critical
 			this.look(context, sp, -40.5, 96, -170.5, new Vec3(-98, 110, -96), 1);
@@ -90,7 +89,7 @@ final class FunkstadtExplosion {
 			for (int t = 0; t < 4; t++) {
 				this.look(context, sp, -170.5, 80, -330.5, new Vec3(-140, 100, -200), 1);
 				context.waitTicks(380);
-				for (String line : sp.getServer().computeOnServer(server -> Plumes.describe())) {
+				for (String line : sp.getServer().computeOnServer(server -> dev.radiation.world.Clouds.describe())) {
 					System.out.println("[funkstadt] t=" + (20 * (t + 1) + 12) + " s: " + line);
 				}
 				System.out.println(String.format(Locale.ROOT, "[funkstadt] t=%d s: %.3f rad/s at the roundabout, %d fallout sources", 20 * (t + 1) + 12,
