@@ -287,8 +287,8 @@ the map loads. It powers the whole map through Gridworks, including a 500 kW lon
 - **Refuelling**: standpipes on top of every column (1.0.1: assemblies pass up and down through the column), a
   manifold above them, out through the hall wall to the fresh fuel racks and the spent fuel pool.
 - **Open, RBMK style** (since the night of 6 October 2026): no containment and no shield. The core stands open on a
-  steel pedestal in a glass-walled, neon-lit reactor hall, its top layers removed so the lattice shows (k drops from
-  1.20 to 1.19). Galleries read about 0.4 rad/s, the control room behind a heavy concrete wall 0.016. Nothing holds an
+  steel pedestal in a windowless concrete, neon-lit reactor hall (as at Chernobyl), its top layers removed so the lattice shows (k drops from
+  1.20 to 1.19). Galleries read about 0.4 rad/s, the control room behind the hall's concrete and its own heavy concrete wall under 0.01. Nothing holds an
   excursion any more.
 - **Steam and water**: one outlet to four turbine sets and three water-cooled condensers; three feedwater pumps at a
   sea-water intake, powered at 10 kV from the 110 kV grid through a station transformer.
