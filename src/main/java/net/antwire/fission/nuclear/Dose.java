@@ -27,6 +27,8 @@ public final class Dose {
 			each = 60;
 		} else if (stack.is(ModItems.GRAPHITE_DEBRIS)) {
 			each = 4;
+		} else if (stack.is(ModItems.FUEL_FRAGMENT)) {
+			each = 40;
 		} else if (stack.is(ModItems.PLUTONIUM)) {
 			each = 0.02;
 		}

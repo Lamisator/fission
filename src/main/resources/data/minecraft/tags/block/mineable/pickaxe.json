@@ -28,6 +28,7 @@
     "fission:storage_drum",
     "fission:reprocessing_plant",
     "fission:gas_centrifuge",
+    "fission:fuel_fragment",
     "fission:uranium_ore",
     "fission:deepslate_uranium_ore",
     "fission:solid_corium"

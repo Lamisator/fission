@@ -6,7 +6,9 @@ neutrons, Doppler feedback, xenon, decay heat. Steam drives turbines whose gener
 **Gridworks** grid. A control room with a SCRAM button, annunciators and a core map keeps it in check.
 Spent fuel is full of real fission products with real half-lives, which go into holding basins and
 storage drums. Lose the cooling and the core melts into corium; make it prompt critical and it blows
-the roof off, unless the roof is thick concrete. All radiation goes through the **Radiation** mod.
+the roof off and throws burning graphite and fuel far over the land, unless the roof is thick concrete;
+a radioactive cloud then drifts downwind and leaves fallout behind. All radiation goes through the
+**Radiation** mod.
 
 Online handbook: https://mchamradio.antwire.net/handbook/fission/
 Source code: [github.com/Lamisator/fission](https://github.com/Lamisator/fission)
@@ -15,11 +17,11 @@ Source code: [github.com/Lamisator/fission](https://github.com/Lamisator/fission
 
 ## Installing
 
-Fission needs **Fabric API**, **Gridworks 1.1.2** or newer and **Radiation 1.3.0** or newer.
+Fission needs **Fabric API**, **Gridworks 1.1.2** or newer and **Radiation 1.4.0** or newer.
 
 1. In Prism Launcher, make a Minecraft **26.3** instance with **Fabric** (loader 0.19.5 or newer).
 2. **Edit → Mods → Download mods**: install **Fabric API**.
-3. **Add file**: `gridworks-1.1.2.jar`, `radiation-1.3.0.jar` and `fission-1.0.1.jar`.
+3. **Add file**: `gridworks-1.1.2.jar`, `radiation-1.4.0.jar` and `fission-1.1.0.jar`.
 
 For a server, put the same jars into its `mods` folder. Every player needs them too.
 
@@ -199,7 +201,7 @@ Because time runs at Minecraft speed, I-131 is gone after a few Minecraft weeks;
 assembly that has run 15 MWd and cooled for a day gives about **1 700 rad/s at one metre**: death in
 under a second. Carried in the inventory it is four times that. Fresh fuel is harmless (MOX a little).
 Hazmat suits and Rad-X help as with any radiation. Concrete, water and heavy materials shield (see
-Radiation 1.3.0).
+Radiation 1.4.0: three blocks of concrete leave 0.1 %).
 
 ## Handling fuel and waste
 
@@ -242,10 +244,16 @@ fuel melts into **corium**:
 ### Explosion
 
 A prompt critical excursion (power over 25 times nominal) or a burst vessel (over 150 bar) blows the
-reactor up. The blast has to go somewhere. Every column of blocks above the core must absorb its
-share: a full excursion of a 27-channel core needs about **340** per column.
+reactor up. The more reactivity drove it, the harder: severity 1.0 just past prompt critical, up to 1.4
+when all rods come out at once (a burst vessel is 0.5).
 
-| Block above the core | Absorbs |
+**The blast.** It pushes up and outwards in a cone, followed 64 blocks up and as far to the side. Every
+column of blocks in that cone must absorb its share: the full blast right above the core (a full
+excursion of a 27-channel core needs about **340** per column, a 108-channel core about **650**), less
+further to the side and only from the height the cone reaches there. Air does not count, so a hall roof
+25 blocks up is just as exposed as a lid on the core.
+
+| Block | Absorbs |
 |---|---|
 | Heavy concrete (Radiation) | 140 |
 | Reinforced concrete (Radiation) | 120 |
@@ -255,14 +263,40 @@ share: a full excursion of a 27-channel core needs about **340** per column.
 | Stone, deepslate, bricks | 8 |
 | Dirt, sand, wood… | 1–2 |
 
-Columns that hold stay put; columns that cannot are **thrown into the air block by block**, together
-with burning, radioactive graphite debris. The fuel turns to corium, and the radioactive inventory gets
-out: a lasting radiation source of about 40 rad/s per fuel channel, tens of blocks wide. Three layers of
-reinforced concrete hold a 27-channel core; earth roofs do not.
+Columns that hold stay put. Columns that cannot are **thrown into the air block by block**, up to about
+100 blocks high; what is too much to throw (more than 900 blocks) shatters. Three to four layers of
+reinforced concrete hold a 27-channel core; earth roofs and ordinary hall roofs do not.
+
+**The core.** Where it is open to the sky, the burning core throws out **irradiated graphite** (30 rad/s at
+one metre) and **fuel fragments** (50 rad/s at one metre), up to 400 pieces, 50 to 250 blocks high and up
+to 300 blocks far, a third of them downwind. They radiate wherever they land, burning graphite sets roofs
+and fields on fire, and picking them up is a bad idea. The rest of the fuel becomes corium. The open shaft
+itself radiates about 4 rad/s per fuel channel, fading over days.
+
+**The cloud.** An open core also sends up a **radioactive cloud**: half with the explosion, the rest in three
+puffs over the next minute while the graphite burns (a column of black smoke and flame stands over the
+core for two minutes). Each puff rises to some 30–60 blocks above the ground and drifts with the wind,
+spreading as it goes. Under it the dose rate is up to a few rad/s near the plant, tenths of a rad/s
+hundreds of blocks away; roofs shield people indoors. Behind it, it leaves **fallout** on the ground: every
+32 blocks a decaying Radiation source, 85 % of it fading like iodine-131 (half-life 8 days), 15 % staying
+like caesium-137. A cloud fades away when it has spread too thin, typically after two to four kilometres.
+Clients see clouds up to a kilometre away (within their render distance), as dark banks of smoke.
+
+**The wind** has no Minecraft equivalent, so it is made up, the same for everyone: each world has a
+prevailing direction (from its seed) that swings back and forth over the days, 3–6 m/s, faster in rain
+and thunderstorms. `/fission wind` says where it blows; operators can fix it (`/fission wind set <towards°>
+<m/s>`, 0° = north, 90° = east) or let it change again (`/fission wind natural`). `/fission clouds` lists
+the clouds on their way. Radiation 1.4 makes the fallout change the land: crops slow down, trees lose
+their leaves, grass dies (see the Radiation handbook).
 
 | Before | Seconds after | Earth roof | Concrete roof |
 |---|---|---|---|
 | ![](docs/img/explosion_before.png) | ![](docs/img/explosion_flying.png) | ![](docs/img/explosion_after_weak.png) | ![](docs/img/explosion_after_concrete.png) |
+
+![Graphite and the earth roof 100 blocks up, seen from 50 blocks away](docs/img/explosion_ejecta.jpg)
+
+`/fission excursion <controller x y z> [severity]` (operators) makes a reactor go prompt critical at once,
+for tests and disaster films.
 
 ## Tips
 
@@ -289,7 +323,7 @@ the map loads. It powers the whole map through Gridworks, including a 500 kW lon
 - **Open, RBMK style** (since the night of 6 October 2026): no containment and no shield. The core stands open on a
   steel pedestal in a windowless concrete, neon-lit reactor hall (as at Chernobyl), its top layers removed so the lattice shows (k drops from
   1.20 to 1.19). Galleries read about 0.4 rad/s, the control room behind the hall's concrete and its own heavy concrete wall under 0.01. Nothing holds an
-  excursion any more.
+  excursion any more: see below.
 - **Steam and water**: one outlet to four turbine sets and three water-cooled condensers; three feedwater pumps at a
   sea-water intake, powered at 10 kV from the 110 kV grid through a station transformer.
 
@@ -312,7 +346,28 @@ the map loads. It powers the whole map through Gridworks, including a 500 kW lon
    B B B B B B B B B B B B B B B
 ```
 
+### When it goes prompt critical
+
+Tested on the download map with `/fission excursion -98 74 -104` and the wind fixed towards the city
+(330°, 5 m/s): the hall roof, 26 blocks above the core, is blown away (168 of 1849 blocks are left, along
+the walls); 900 blocks fly up to 180 blocks high, graphite and fuel up to 370 blocks out, and about 300
+pieces come down on the plant, its roofs and the fields, setting fires. The cloud reaches the roundabout in
+the city centre (257 blocks away) after about 50 seconds: 0.7–0.8 rad/s outdoors while it passes, and
+fallout along its track. Close to the plant the ground reads 2 rad/s.
+
+| The explosion | The open core afterwards | The cloud over the city |
+|---|---|---|
+| ![](docs/img/funkstadt_explosion.jpg) | ![](docs/img/funkstadt_after_core.jpg) | ![](docs/img/funkstadt_cloud_city.jpg) |
+| **Debris on the roofs around** | **The trail of the cloud** | **Under the cloud** |
+| ![](docs/img/funkstadt_after_hall.jpg) | ![](docs/img/funkstadt_cloud_trail.jpg) | ![](docs/img/funkstadt_cloud_overhead.jpg) |
+
 ## Changes
+
+- **1.1.0** (needs Radiation 1.4.0): prompt critical excursions blow away everything that cannot hold the blast in a
+  cone up to 64 blocks above the core (a hall roof included), throw irradiated graphite and fuel fragments (new block)
+  hundreds of blocks high and far, and release a radioactive cloud that drifts with a made-up wind and leaves decaying
+  fallout. `/fission wind`, `/fission clouds`, `/fission excursion`. Severity follows the reactivity. The open core's
+  own source is 4 instead of 40 rad/s per channel and fades over days.
 
 - **1.0.1**: a column of stacked fuel channels is one pressure tube, so a tube on top of the column refuels every
   channel in it. Tube routing counts the tubes it travels (up to 2048), not every block it looks at, so pushes no
@@ -321,8 +376,10 @@ the map loads. It powers the whole map through Gridworks, including a 500 kW lon
 ## Building from source
 
 ```
-./gradlew build                                # build/libs/fission-1.0.1.jar
-./gradlew runClientGameTest [-Pscenes=plant]   # the screenshot tour (plant, fuel, meltdown, explosion)
+./gradlew build                                # build/libs/fission-1.1.0.jar
+./gradlew runClientGameTest [-Pscenes=plant]   # the screenshot tour (plant, fuel, meltdown, explosion, cloud)
+./gradlew runClientGameTest -Pmap=<unpacked DARC_Funkstadt> -PmapMods=<hamradio.jar,redbutton.jar>
+                                               # the Funkstadt plant goes prompt critical
 ```
 
 `libs/` holds the Gridworks and Radiation jars it compiles against. `tools/gen_assets.py` generates

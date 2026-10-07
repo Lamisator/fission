@@ -48,6 +48,12 @@ public class ReactorTour implements FabricClientGameTest {
 
 	@Override
 	public void runTest(ClientGameTestContext context) {
+		String map = System.getProperty("fission.map", "");
+		if (!map.isEmpty()) {
+			context.getInput().resizeWindow(1280, 720);
+			new FunkstadtExplosion().run(context, java.nio.file.Path.of(map));
+			return;
+		}
 		context.getInput().resizeWindow(1280, 720);
 		try (TestSingleplayerContext sp = context.worldBuilder()
 				.setUseConsistentSettings(true)
@@ -69,6 +75,7 @@ public class ReactorTour implements FabricClientGameTest {
 			if (scenes.equals("all") || scenes.contains("plant")) this.plant(context, sp);
 			if (scenes.equals("all") || scenes.contains("fuel")) this.fuelCycle(context, sp);
 			if (scenes.equals("all") || scenes.contains("meltdown")) this.meltdown(context, sp);
+			if (scenes.contains("cloud")) this.cloud(context, sp);
 			if (scenes.equals("all") || scenes.contains("explosion")) this.explosions(context, sp);
 		}
 	}
@@ -428,6 +435,22 @@ public class ReactorTour implements FabricClientGameTest {
 		this.shot(context, "corium");
 	}
 
+	// ------------------------------------------------------------------ a radioactive cloud on its own
+
+	private void cloud(ClientGameTestContext context, TestSingleplayerContext sp) {
+		int y = this.g;
+		sp.getServer().runCommand("fission wind set 90 4");
+		sp.getServer().runOnServer(server -> net.antwire.fission.world.Plumes.release(server.overworld(), new Vec3(0, y + 1, 0), 3.0));
+		context.waitTicks(60);
+		this.look(context, sp, -25.5, y + 25, -30.5, new Vec3(12, y + 20, 0));
+		this.shot(context, "cloud_near");
+		for (int i = 0; i < 3; i++) {
+			context.waitTicks(100);
+			this.look(context, sp, -40.5 + 25 * i, y + 30, -70.5, new Vec3(20 + 25 * i, y + 28, 0));
+			this.shot(context, "cloud_" + i);
+		}
+	}
+
 	// ------------------------------------------------------------------ 4: explosions
 
 	private void explosions(ClientGameTestContext context, TestSingleplayerContext sp) {
@@ -466,7 +489,47 @@ public class ReactorTour implements FabricClientGameTest {
 		int flying = sp.getServer().computeOnServer(server -> server.overworld().getEntitiesOfClass(FallingBlockEntity.class,
 				new AABB(80, y - 10, -30, 160, y + 120, 30)).size());
 		System.out.println("[reactor-tour] blocks in the air right after the explosions: " + flying);
-		context.waitTicks(120);
+		// follow the ejecta: how high and how far do they get?
+		double[] top = new double[2];
+		for (int i = 0; i < 30; i++) {
+			context.waitTicks(10);
+			double[] now = sp.getServer().computeOnServer(server -> {
+				double h = 0, far = 0;
+				for (FallingBlockEntity e : server.overworld().getEntitiesOfClass(FallingBlockEntity.class, new AABB(-400, y - 40, -400, 600, y + 400, 400))) {
+					h = Math.max(h, e.getY() - y);
+					far = Math.max(far, Math.hypot(e.getX() - 102, e.getZ() - 2));
+				}
+				return new double[]{h, far};
+			});
+			top[0] = Math.max(top[0], now[0]);
+			top[1] = Math.max(top[1], now[1]);
+			if (i == 3) {
+				this.look(context, sp, 70.5, y + 30, -60.5, new Vec3(102, y + 40, 2));
+				this.shot(context, "explosion_ejecta");
+			}
+		}
+		System.out.println(String.format(Locale.ROOT, "[reactor-tour] ejecta: up to %.0f blocks above the core, %.0f blocks out", top[0], top[1]));
+		String landed = sp.getServer().computeOnServer(server -> {
+			ServerLevel level = server.overworld();
+			int graphite = 0, fragments = 0;
+			double far = 0;
+			for (BlockPos p : BlockPos.betweenClosed(-200, y - 6, -300, 400, y + 12, 300)) {
+				if (!level.isLoaded(p)) {
+					continue;
+				}
+				BlockState st = level.getBlockState(p);
+				if (st.is(ModBlocks.REACTOR_DEBRIS) || st.is(ModBlocks.FUEL_FRAGMENT)) {
+					if (st.is(ModBlocks.REACTOR_DEBRIS)) graphite++; else fragments++;
+					far = Math.max(far, Math.hypot(p.getX() - 102, p.getZ() - 2));
+				}
+			}
+			return String.format(Locale.ROOT, "landed: %d graphite, %d fuel fragments, farthest %.0f blocks", graphite, fragments, far);
+		});
+		System.out.println("[reactor-tour] " + landed);
+		for (String line : net.antwire.fission.world.Plumes.describe()) {
+			System.out.println("[reactor-tour] " + line);
+		}
+		context.waitTicks(20);
 		this.shot(context, "explosion_after_weak");
 		this.look(context, sp, 122.5, y + 9, -14.5, new Vec3(132, y + 6, 2));
 		this.shot(context, "explosion_after_concrete");

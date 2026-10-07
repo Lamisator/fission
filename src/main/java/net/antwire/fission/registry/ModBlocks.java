@@ -10,6 +10,7 @@ import net.antwire.fission.block.CoriumBlock;
 import net.antwire.fission.block.FeedwaterPumpBlock;
 import net.antwire.fission.block.FuelChannelBlock;
 import net.antwire.fission.block.PipeBlock;
+import net.antwire.fission.block.EjectaBlock;
 import net.antwire.fission.block.RadiatingBlock;
 import net.antwire.fission.block.RadiationMonitorBlock;
 import net.antwire.fission.block.ReactorControllerBlock;
@@ -122,8 +123,10 @@ public final class ModBlocks {
 					.pushReaction(PushReaction.IMMOVEABLE).randomTicks(), false);
 	public static final Block SOLID_CORIUM = block("solid_corium", p -> new RadiatingBlock(100, p),
 			props(MapColor.TERRACOTTA_BROWN, 40.0F, SoundType.BASALT).requiresCorrectToolForDrops().explosionResistance(600).lightLevel(s -> 3), true);
-	public static final Block REACTOR_DEBRIS = block("reactor_debris", p -> new RadiatingBlock(30, p),
+	public static final Block REACTOR_DEBRIS = block("reactor_debris", p -> new EjectaBlock(30, 0.3F, p),
 			props(MapColor.COLOR_BLACK, 2.0F, SoundType.GRAVEL), true);
+	public static final Block FUEL_FRAGMENT = block("fuel_fragment", p -> new EjectaBlock(50, 0.1F, p),
+			props(MapColor.COLOR_GRAY, 3.0F, SoundType.METAL).requiresCorrectToolForDrops().lightLevel(s -> 4), true);
 
 	private ModBlocks() {
 	}

@@ -2,6 +2,7 @@
 worldgen, language entries and sounds. Run from the repository root: python3 tools/gen_assets.py
 Needs Pillow, numpy, soundfile and oggenc (vorbis-tools)."""
 import json, math, os, random, subprocess, tempfile
+import math
 import numpy as np
 import soundfile as sf
 from PIL import Image, ImageDraw
@@ -283,8 +284,31 @@ for x, y in ((2, 3), (9, 5), (5, 11), (12, 12)):
     d.line([(x, y), (x + 3, y + 1)], fill=rgba((20, 20, 22)))
 d.point((7, 8), fill=rgba((240, 120, 40)))
 save(deb, "block/reactor_debris")
+# a broken piece of a fuel assembly: zirconium cladding, ceramic fuel, still glowing in places
+ff = noise(canvas(rgba((70, 72, 66))), 16, 41)
+d = ImageDraw.Draw(ff)
+for x0 in (1, 6, 11):
+    d.line([(x0, 0), (x0 + 1, 15)], fill=rgba((150, 152, 145)))
+for x, y in ((3, 5), (8, 9), (13, 3), (4, 13), (10, 14)):
+    d.point((x, y), fill=rgba((255, 150, 50)))
+    d.point((x + 1, y), fill=rgba((200, 80, 30)))
+save(ff, "block/fuel_fragment")
 os.makedirs(f"{A}/textures/entity", exist_ok=True)
 canvas((255, 255, 255, 255)).save(f"{A}/textures/entity/white.png")
+# a soft, ragged puff of smoke for radioactive clouds (white: the renderer tints it)
+puff = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
+pr = random.Random(77)
+pp = puff.load()
+for py in range(64):
+    for px in range(64):
+        dx, dy = (px - 31.5) / 31.5, (py - 31.5) / 31.5
+        rr = (dx * dx + dy * dy) ** 0.5
+        edge = 0.82 + 0.12 * math.sin(math.atan2(dy, dx) * 5 + 1.1) + 0.06 * math.sin(math.atan2(dy, dx) * 11)
+        a = max(0.0, 1 - rr / edge)
+        a = a ** 0.8 * (0.82 + 0.18 * pr.random())
+        v = int(200 + 55 * pr.random())
+        pp[px, py] = (v, v, v, int(255 * min(1.0, a * 1.15)))
+puff.save(f"{A}/textures/entity/cloud_puff.png")
 
 # items
 def item_img(draw):
@@ -409,7 +433,7 @@ def oriented(name, front, side, top=None, extra=None):
 
 
 for n in ("uranium_ore", "deepslate_uranium_ore", "graphite_moderator", "beryllium_reflector", "reactor_vessel", "feedwater_inlet", "steam_outlet",
-          "relief_valve", "condenser", "solid_corium", "reactor_debris"):
+          "relief_valve", "condenser", "solid_corium", "reactor_debris", "fuel_fragment"):
     simple(n)
 
 for load in range(3):
@@ -528,7 +552,7 @@ for n in ITEMS:
 BLOCKS = ["fuel_channel", "control_rod", "graphite_moderator", "beryllium_reflector", "reactor_vessel", "feedwater_inlet", "steam_outlet", "relief_valve",
           "reactor_controller", "reactor_console", "scram_button", "annunciator_panel", "core_map", "radiation_monitor", "water_pipe", "steam_pipe",
           "feedwater_pump", "steam_turbine", "turbine_generator", "condenser", "fuel_transfer_tube", "isotope_pipe", "fuel_rack", "holding_basin",
-          "storage_drum", "reprocessing_plant", "gas_centrifuge", "reactor_debris"]
+          "storage_drum", "reprocessing_plant", "gas_centrifuge", "reactor_debris", "fuel_fragment"]
 
 
 def drop_self(n):
@@ -655,7 +679,9 @@ lang = {
     "block.fission.gas_centrifuge": "Gas Centrifuge", "block.fission.gas_centrifuge.desc": "230 V, 2 kW. Enriches yellowcake: 4 in, 1 enriched + 3 depleted out.",
     "block.fission.corium": "Molten Corium", "block.fission.solid_corium": "Solidified Corium",
     "block.fission.solid_corium.desc": "The elephant's foot. Lethal for centuries.",
-    "block.fission.reactor_debris": "Radioactive Graphite Debris", "block.fission.reactor_debris.desc": "Blown out of a reactor. Very radioactive.",
+    "block.fission.reactor_debris": "Radioactive Graphite Debris", "block.fission.reactor_debris.desc": "Irradiated graphite blown out of a reactor. Very radioactive.",
+    "entity.fission.radioactive_cloud": "Radioactive Cloud",
+    "block.fission.fuel_fragment": "Fuel Fragment", "block.fission.fuel_fragment.desc": "A piece of a fuel assembly from an exploded core. Deadly within metres.",
     "block.fission.not_linked": "Not linked: use the data cable on a reactor controller, then here",
     "block.fission.linked_to": "Linked to the reactor at %s",
     "item.fission.raw_uranium": "Raw Uranium", "item.fission.yellowcake": "Yellowcake", "item.fission.yellowcake.desc": "Natural uranium oxide, 0.7 % U-235.",

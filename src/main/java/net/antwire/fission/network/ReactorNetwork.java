@@ -91,6 +91,7 @@ public final class ReactorNetwork {
 		PayloadTypeRegistry.serverboundPlay().register(Watch.TYPE, Watch.CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(Command.TYPE, Command.CODEC);
 		PayloadTypeRegistry.clientboundPlay().register(Status.TYPE, Status.CODEC);
+		PayloadTypeRegistry.clientboundPlay().register(CloudPayload.TYPE, CloudPayload.CODEC);
 		ServerPlayNetworking.registerGlobalReceiver(Watch.TYPE, (p, ctx) -> {
 			if (p.on) {
 				WATCHERS.put(ctx.player().getUUID(), p.pos);

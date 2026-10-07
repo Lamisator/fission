@@ -34,6 +34,11 @@ dependencies {
 	implementation files("libs/gridworks-${project.gridworks_version}.jar")
 	implementation files("libs/radiation-${project.radiation_version}.jar")
 
+	// a saved world that needs more mods (the Funkstadt map): -PmapMods=/path/a.jar,/path/b.jar
+	if (project.hasProperty("mapMods")) {
+		localRuntime files(project.property("mapMods").toString().split(","))
+	}
+
 }
 
 loom {
@@ -41,6 +46,8 @@ loom {
 		configureEach {
 			if (name == "clientGameTest") {
 				vmArg "-Dfission.scenes=" + (project.findProperty("scenes") ?: "all")
+				vmArg "-Dfission.map=" + (project.findProperty("map") ?: "")
+				vmArg "-Dfission.debugClouds=" + (project.findProperty("debugClouds") ?: "false")
 			}
 		}
 	}

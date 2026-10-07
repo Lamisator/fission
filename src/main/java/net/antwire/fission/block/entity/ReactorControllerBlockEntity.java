@@ -269,7 +269,7 @@ public class ReactorControllerBlockEntity extends BlockEntity {
 			return;
 		}
 		if (this.power > 25 * this.nominal()) {
-			ReactorExplosion.explode(level, this, 1.0, "prompt critical power excursion");
+			ReactorExplosion.explode(level, this, ReactorExplosion.severity(this.rho, BETA), "prompt critical power excursion");
 			return;
 		}
 		if (this.hotTemp > MELT_TEMP) {

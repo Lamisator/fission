@@ -43,12 +43,15 @@ public final class ModItems {
 	public static final Item CORIUM_FRAGMENT = item("corium_fragment", Item::new, new Item.Properties().rarity(Rarity.EPIC), true);
 	public static final Item REACTOR_LINKER = item("reactor_linker", LinkerItem::new, new Item.Properties().stacksTo(1), true);
 	public static Item GRAPHITE_DEBRIS;
+	public static Item FUEL_FRAGMENT;
 
 	static {
 		for (Block b : ModBlocks.WITH_ITEMS) {
 			Item it = blockItem(b);
 			if (b == ModBlocks.REACTOR_DEBRIS) {
 				GRAPHITE_DEBRIS = it;
+			} else if (b == ModBlocks.FUEL_FRAGMENT) {
+				FUEL_FRAGMENT = it;
 			}
 		}
 	}
