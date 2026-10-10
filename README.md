@@ -133,7 +133,8 @@ then on each piece.
   - Gauges: hottest fuel temperature, pressure, water level, steam and feed flow, xenon, decay heat.
   - Core map: every fuel channel's power, coloured from blue to red.
   - **Rods**: drag the slider, or IN/OUT in 1 % and 5 % steps. The drives move 0.5 %/s.
-  - **AUTO**: holds the power setpoint (÷2 / ×2) with the rods, never faster than about a 33 s period.
+  - **AUTO**: holds the power setpoint (÷2 / ×2) with the rods, never faster than about a 33 s period. It steers
+    by the rods' real worth where they are, which in a burnt-up core is far higher near the top of the stroke.
   - **RPS ON / BYPASS**: the reactor protection system. Bypassing it is how Chernobyl happened.
   - **SCRAM**: lift the guard, press the button. All rods drop in within three seconds. **RESET** once
     the rods are in and nothing calls for a SCRAM.
@@ -208,7 +209,7 @@ Radiation 1.5.0: three blocks of concrete leave 0.1 %).
 | Block | |
 |---|---|
 | **Fuel Rack** | Fresh fuel. Sends it down fuel transfer tubes to empty fuel channels. |
-| **Fuel Transfer Tube** | Moves fuel assemblies. Spent assemblies leave the fuel channels by tube on their own (on-load refuelling). A column of stacked fuel channels is one pressure tube: assemblies travel up and down through it, so one tube on top of each column reaches every channel in it. |
+| **Fuel Transfer Tube** | Moves fuel assemblies. On-load refuelling: in a running core a spent assembly stays in its channel until a fresh one arrives by tube, which takes its place over three minutes (the refuelling machine lowers it in), so the reactivity rises a few pcm a second instead of jumping; the spent one leaves by tube. Outside a reactor spent assemblies leave on their own. A column of stacked fuel channels is one pressure tube: assemblies travel up and down through it, so one tube on top of each column reaches every channel in it. |
 | **Holding Basin** | A pool for short-lived isotopes and spent fuel; the water lets through only 0.02 %. Canisters that have decayed become harmless empty canisters. Spent fuel that has cooled for a day goes on by tube to reprocessing. |
 | **Reprocessing Plant** | 230 V, 3 kW, heavily shielded (5 % gets out). Dissolves a cooled spent assembly into one canister per isotope, with as much as the rod really holds, plus plutonium and depleted uranium. Sends them out by isotope pipe. |
 | **Isotope Pipe** | Moves canisters, plutonium, depleted uranium and debris. Each item goes to the nearest block that takes it. |
@@ -372,6 +373,13 @@ fallout along its track. Close to the plant the ground reads 2 rad/s.
 ## Changes
 
 - **1.2.1**: the smoke column rises 80 blocks and the clouds float about 85 blocks above the ground (about three times higher than before).
+- **1.2.2**: refuelling a running core no longer makes it jump. A fresh assembly used to drop into a channel the
+  moment the spent one left; in the burnt-up middle of a core one such exchange added about 600 pcm in a single tick,
+  more than the delayed neutron fraction, so raising the power (which burns the middle channels out faster) ended in a
+  short period SCRAM or a prompt critical excursion. Now the spent assembly waits for its replacement and the fresh
+  one goes in over three minutes, which AUTO follows without effort. AUTO also uses the rods' real differential worth
+  instead of a fixed 20 000 pcm (the Funkstadt core has about 47 000 pcm per stroke near the top).
+
 - **1.2.0** (needs Radiation 1.5.0): a blown-up core keeps burning, with smoke rising from it and - where it is open
   to the sky - a radioactive cloud every half minute until the fire is smothered (sand, gravel, concrete, water on the
   core) or burns out after ten days; `/fission fires`, `/fission extinguish`. Clouds and wind moved to the Radiation mod
@@ -391,10 +399,12 @@ fallout along its track. Close to the plant the ground reads 2 rad/s.
 ## Building from source
 
 ```
-./gradlew build                                # build/libs/fission-1.2.1.jar
+./gradlew build                                # build/libs/fission-1.2.2.jar
 ./gradlew runClientGameTest [-Pscenes=plant]   # the screenshot tour (plant, fuel, meltdown, explosion, cloud)
 ./gradlew runClientGameTest -Pmap=<unpacked DARC_Funkstadt> -PmapMods=<hamradio.jar,redbutton.jar>
                                                # the Funkstadt plant goes prompt critical
+./gradlew runClientGameTest -Pmap=<world> -Pscenes=funkauto -PmapMods=...
+                                               # the Funkstadt plant in AUTO, 16 -> 32 -> 64 MW
 ```
 
 `libs/` holds the Gridworks and Radiation jars it compiles against. `tools/gen_assets.py` generates

@@ -46,6 +46,8 @@ public final class CoreModel {
 	public double k;
 	public double[] share = new double[0];
 	public double peaking = 1;
+	/** Differential rod worth at the last solve: reactivity per full stroke at the present rod position (positive). */
+	public double rodWorth = 0.2;
 
 	private double[][] thermal;
 	private double[][] fast;
@@ -158,6 +160,8 @@ public final class CoreModel {
 		double k01 = this.iterate(this.transport(r0, w0 + 1, eta), eta, poison, (w0 + 1) / 50.0, false);
 		double k11 = this.iterate(this.transport(r0 + 1, w0 + 1, eta), eta, poison, (w0 + 1) / 50.0, false);
 		this.k = (k00 * (1 - tr) + k10 * tr) * (1 - tw) + (k01 * (1 - tr) + k11 * tr) * tw;
+		double dk = ((k00 - k10) * (1 - tw) + (k01 - k11) * tw) * 100;
+		this.rodWorth = this.k > 0 ? dk / (this.k * this.k) : 0.2;
 		// the power shape from the nearest grid point
 		int rn = tr < 0.5 ? r0 : r0 + 1;
 		int wn = tw < 0.5 ? w0 : w0 + 1;

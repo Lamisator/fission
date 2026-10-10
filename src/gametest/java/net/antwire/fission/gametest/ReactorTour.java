@@ -51,7 +51,11 @@ public class ReactorTour implements FabricClientGameTest {
 		String map = System.getProperty("fission.map", "");
 		if (!map.isEmpty()) {
 			context.getInput().resizeWindow(1280, 720);
-			new FunkstadtExplosion().run(context, java.nio.file.Path.of(map));
+			if (System.getProperty("fission.scenes", "").contains("funkauto")) {
+				new FunkstadtAuto().run(context, java.nio.file.Path.of(map));
+			} else {
+				new FunkstadtExplosion().run(context, java.nio.file.Path.of(map));
+			}
 			return;
 		}
 		context.getInput().resizeWindow(1280, 720);

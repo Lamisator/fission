@@ -89,6 +89,7 @@ public class ReactorControllerBlockEntity extends BlockEntity {
 	private double[] poison = new double[0];
 	private double[] energy = new double[0];
 	private boolean fuelDirty = true;
+	private boolean refuelling;
 	private double solvedRods = -1;
 	private double solvedWater = -1;
 	private long solvedAt;
@@ -211,7 +212,8 @@ public class ReactorControllerBlockEntity extends BlockEntity {
 		double speed = this.scram ? 0.35 : 0.005;
 		double target = this.scram ? 1 : this.rodTarget;
 		this.rods += Math.clamp(target - this.rods, -speed * DT, speed * DT);
-		if (this.fuelDirty || now % 100 == 0) {
+		// while the refuelling machine lowers an assembly in, follow it every second
+		if (this.fuelDirty || now % 100 == 0 || this.refuelling && now % 20 == 0) {
 			this.refreshFuel(level);
 		}
 		boolean anyFuel = false;
@@ -383,14 +385,16 @@ public class ReactorControllerBlockEntity extends BlockEntity {
 
 	/**
 	 * Automatic regulating rods: hold the thermal power setpoint, never faster than about a 33 s period. The wanted
-	 * reactivity follows the power error; the rods are steered towards it from where they are, using an estimated
-	 * rod worth of 20 000 pcm for the full stroke.
+	 * reactivity follows the power error; the rods are steered towards it from where they are, using the rods'
+	 * differential worth at their present position (it is several times higher near the top of the stroke in a
+	 * burnt-up core than in the middle of a fresh one).
 	 */
 	private void regulate() {
 		double p = Math.max(1, this.thermalPower());
 		double err = Math.log(p / Math.max(1, this.setpoint));
 		double want = Math.clamp(-0.0015 * err / 0.2, -0.003, 0.0018);
-		double move = Math.clamp(-(want - this.rho) / 0.2, -0.02, 0.02);
+		double worth = this.core == null ? 0.2 : Math.max(0.05, this.core.rodWorth);
+		double move = Math.clamp(-(want - this.rho) / worth, -0.02, 0.02);
 		this.rodTarget = Math.clamp(this.rods + move, 0, 1);
 	}
 
@@ -450,12 +454,14 @@ public class ReactorControllerBlockEntity extends BlockEntity {
 		double[] e = new double[n];
 		double[] p = new double[n];
 		boolean changed = this.eta.length != n;
+		boolean refuelling = false;
 		for (int i = 0; i < n; i++) {
 			if (level.getBlockEntity(core.fuel.get(i)) instanceof FuelChannelBlockEntity ch && !ch.rod().isEmpty()) {
 				FuelData d = FuelRodItem.data(ch.rod());
-				e[i] = d.type().eta(d.fraction());
-				p[i] = FuelType.poison(d.fraction());
+				e[i] = ch.effectiveEta(d.type().eta(d.fraction()));
+				p[i] = ch.effectivePoison(FuelType.poison(d.fraction()));
 				ch.inReactor = level.getGameTime();
+				refuelling |= ch.refuelling();
 			}
 			if (!changed && (e[i] > 0) != (this.eta[i] > 0)) {
 				changed = true;
@@ -463,6 +469,7 @@ public class ReactorControllerBlockEntity extends BlockEntity {
 		}
 		this.eta = e;
 		this.poison = p;
+		this.refuelling = refuelling;
 		if (changed) {
 			core.invalidate();
 		}

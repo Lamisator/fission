@@ -94,6 +94,12 @@ public class FuelChannelBlock extends BaseEntityBlock implements CoreBlock {
 		if (!level.isClientSide() && level.getBlockEntity(pos) instanceof FuelChannelBlockEntity ch && !ch.rod().isEmpty()) {
 			Containers.dropItemStack(level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, ch.takeRod());
 		}
+		if (!level.isClientSide() && level.getBlockEntity(pos) instanceof FuelChannelBlockEntity ch) {
+			ItemStack out = ch.takeOutgoing();
+			if (!out.isEmpty()) {
+				Containers.dropItemStack(level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, out);
+			}
+		}
 		return super.playerWillDestroy(level, pos, state, player);
 	}
 
