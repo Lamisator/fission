@@ -370,6 +370,72 @@ fallout along its track. Close to the plant the ground reads 2 rad/s.
 | **Debris on the roofs around** | **The trail of the cloud** | **Under the cloud** |
 | ![](docs/img/funkstadt_after_hall.jpg) | ![](docs/img/funkstadt_cloud_trail.jpg) | ![](docs/img/funkstadt_cloud_overhead.jpg) |
 
+## Learning world: the Reactor Trail
+
+**Reactor Trail** is a world for learning how a nuclear power plant is built and how it works. One plant, the starter
+reactor described above with everything around it, stands at 13 stations along an avenue, each time further built:
+from the first block in an empty pit to a plant that runs and refuels itself. Station 0 shows the way from uranium ore
+to a fuel assembly.
+
+- Download: `Reactor_Trail.zip` on the [download site](https://mchamradio.antwire.net/#downloads) (a superflat world).
+  Needs Fission 1.2.2, Gridworks 1.5.0 and Radiation 1.9.3 or newer.
+- On the **game-1** server it is a multiverse world: a third gate on the lawn west of the Funkstadt spawn, next to the
+  Proving Ground and Wellenhafen gates.
+
+![The Reactor Trail: station 13, the plant in operation](docs/img/rt_s13_plant.jpg)
+
+Every station has a board with signs, a **book on a lectern** that explains the stage in detail, a **REBUILD** button
+that resets the station, and buttons to the next and previous station. The start plaza has a guide book, a teleport
+board to every station and a chest with a hazmat suit and a Geiger counter.
+
+| Station | What you see |
+|---|---|
+| 0 From ore to fuel | A quarry with uranium ore in its walls, furnace and blast furnace, an enrichment hall whose gas centrifuges run on a coal generator, the chain raw uranium → yellowcake → enriched uranium → cladding → fuel assembly in item frames |
+| 1 The site | Survey stakes and strings around the future buildings, the pit, and at its bottom **the first block** of reinforced concrete; the tower crane |
+| 2 Basemat and pedestal | Three layers of reinforced concrete, the 9 × 9 iron pedestal |
+| 3 Bottom reflector | 7 × 7 beryllium, with the plan of the fuel layers above laid out in carpets |
+| 4 First fuel layer | Fuel channels, control rods, graphite, the beryllium ring and the feedwater inlet |
+| 5 The complete core | Three fuel layers (27 channels) and the steam outlet, open at the top |
+| 6 Top plate and controller | The top reflector with standpipes over the nine columns, the relief valve, the reactor controller |
+| 7 Shield and building | Three blocks of reinforced concrete round the core and above it, penetrations for pipes, the manifold and refuelling floor, the reactor building; cut open at the front |
+| 8 Water and steam | The cooling pond, two feedwater pumps, the feedwater and steam lines, two condensers |
+| 9 Turbine and generator | The turbine hall, 10 kV to the pumps, a transformer to 230 V for the street lamps, a coal generator for a black start |
+| 10 Control room | Consoles, annunciators, core maps, monitors and the SCRAM button, all linked to the controller |
+| 11 Fuel and waste | Fuel racks, the spent fuel pool with holding basins, the reprocessing plant under water at the end of the pool, isotope pipes to canister basins and to storage drums in a concrete vault |
+| 12 Start it yourself | The finished plant, fuelled, cold and shut down, with coal for the start-up generator |
+| 13 In operation | The plant running at 5 MW in AUTO, feeding its own pumps and the street lamps, with three assemblies about to burn out |
+
+| 1: the first block in the pit | 3: the reflector with the layer plan | 4: the first fuel layer |
+|---|---|---|
+| ![](docs/img/rt_s1_pit.jpg) | ![](docs/img/rt_s3_plan.jpg) | ![](docs/img/rt_s4_layer.jpg) |
+| 5: the complete core | 6: standpipes and controller | 7: the shield, cut open |
+| ![](docs/img/rt_s5_core.jpg) | ![](docs/img/rt_s6_top.jpg) | ![](docs/img/rt_s7_cutaway.jpg) |
+| 8: pumps, pond and feedwater line | 9: turbine and generator | 10: the control room |
+| ![](docs/img/rt_s8_pond.jpg) | ![](docs/img/rt_s9_turbine.jpg) | ![](docs/img/rt_s10_control.jpg) |
+| 11: the spent fuel pool | 11: storage drums in the waste vault | 13: the refuelling floor |
+| ![](docs/img/rt_s11_pool.jpg) | ![](docs/img/rt_s11_vault.jpg) | ![](docs/img/rt_s13_refuel_floor.jpg) |
+| 0: the uranium quarry | 0: the enrichment hall | 0: from raw uranium to an assembly |
+| ![](docs/img/rt_s0_quarry.jpg) | ![](docs/img/rt_s0_enrichment.jpg) | ![](docs/img/rt_s0_fabrication.jpg) |
+| A station board with its book | The avenue: stations 0 to 6 north, 7 to 13 south | 1: the building site |
+| ![](docs/img/rt_s13_board.jpg) | ![](docs/img/rt_avenue.jpg) | ![](docs/img/rt_s1_site.jpg) |
+
+**Station 12** is a start-up exercise. Put coal into the start-up generator (its 230 V is stepped up to 10 kV for the
+pumps), open a console in the control room and pull the rods: in 5 % steps down to 25 %, then in 1 % steps, waiting
+after each. Near criticality the power levels off at a fraction of a watt after every step (subcritical
+multiplication); this cold, fresh core is critical with the rods about 20 % in. One more step starts a steady rise; two
+at once give a period under 10 s and a SCRAM. Once the power rises on its own, AUTO with a setpoint of 4 MW takes it
+from a fraction of a watt to megawatts in about ten minutes, at a period of about 30 s; the water reaches 70 bar
+about five minutes later. At 40 bar the turbine spins up, the generator synchronises, takes over the pumps from the coal
+generator and lights the street lamps along the road.
+
+**Station 13** shows the fuel cycle live. The three assemblies in a corner column of the core are at 14.98 to
+14.99 MWd and burn out within minutes of your arrival. Fresh ones come from the racks in the fuel building and take
+their place over three minutes; the spent ones go down the tube to the holding basins at the bottom of the pool. After a
+Minecraft day of cooling they go on to the reprocessing plant, and their fission products end up as canisters in the
+basins (short-lived) and in the drums of the waste vault (long-lived, with the plutonium and depleted uranium). In the
+running plant the dose is negligible everywhere you can walk: 0.01 rad/s at most, on the refuelling floor right
+above the centre column.
+
 ## Changes
 
 - **1.2.1**: the smoke column rises 80 blocks and the clouds float about 85 blocks above the ground (about three times higher than before).
