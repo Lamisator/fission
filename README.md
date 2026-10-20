@@ -307,6 +307,24 @@ fallout changes the land: crops slow down, trees lose their leaves, grass dies (
 `/fission excursion <controller x y z> [severity]` (operators) makes a reactor go prompt critical at once,
 for tests and disaster films.
 
+### Struck by a nuclear weapon
+
+With [RedButton](https://github.com/Lamisator/mc_redbutton) 1.11.0 or newer, a reactor that a nuclear blast destroys
+**blows up itself**, a moment before the shock front reaches it, while its core is still whole. No containment holds
+against that, however much reinforced concrete it has: the lid and everything over the core is thrown off, the core
+blows apart in a string of explosions (severity 1.5 at the edge of what destroys it, 2.0 for a direct hit), and twice
+as much fuel and burning graphite flies out as in an excursion. The whole inventory gets out: the open core radiates
+**16 rad/s per fuelled channel** (1728 rad/s for the 108 channels of
+Kernkraftwerk Funkstadt, linear falloff over 113-122 blocks, shielded; the short-lived part halves every two days, 30 %
+stays), and the cloud carries 2.4 times the excursion's whole volatile inventory - on top of the bomb's own fallout.
+The core keeps burning ([fires](#explosion)) where anything of it is left.
+
+What counts as destroyed: the core lies in the crater (and not below its floor), or it stands above ground where the
+blast force is at least 40 % (with a thermonuclear warhead, out to about 76 blocks from ground zero). A core buried more
+than 4 blocks below the open ground around it comes through, like every bunker. A reactor without fuel is only wrecked.
+Tested on the download map: a thermonuclear warhead 49 blocks from the Funkstadt core sets it off (violence 0.51), one
+89 blocks away does not; a Tsar on the core sets it off at full severity before the crater forms.
+
 ## Tips
 
 - Fill the core with water before pulling the rods; the protection system will not let you otherwise.
@@ -445,6 +463,9 @@ above the centre column.
   short period SCRAM or a prompt critical excursion. Now the spent assembly waits for its replacement and the fresh
   one goes in over three minutes, which AUTO follows without effort. AUTO also uses the rods' real differential worth
   instead of a fixed 20 000 pcm (the Funkstadt core has about 47 000 pcm per stroke near the top).
+- **1.3.0**: reactors destroyed by a nuclear blast ([RedButton](#struck-by-a-nuclear-weapon) 1.11.0+) blow up
+  themselves, containment or not, and release several times the radiation of an excursion. `FissionApi` for other mods
+  (`reactorsNear`, `destroy`).
 
 - **1.2.0** (needs Radiation 1.5.0): a blown-up core keeps burning, with smoke rising from it and - where it is open
   to the sky - a radioactive cloud every half minute until the fire is smothered (sand, gravel, concrete, water on the

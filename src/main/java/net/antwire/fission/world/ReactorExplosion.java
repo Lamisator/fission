@@ -36,6 +36,10 @@ import java.util.Set;
  * fly burning, radioactive graphite and pieces of fuel, hundreds of blocks up and far over the land; and the burning core
  * keeps burning ({@link ReactorFires}), sending radioactive clouds downwind as long as it is open to the sky. Enough reinforced or heavy concrete (from the Radiation mod)
  * holds the blast in: the lid stays where it is and so does the radiation.
+ *
+ * <p>A blast from outside - a nuclear weapon going off nearby ({@link net.antwire.fission.api.FissionApi#destroy}) -
+ * does not care for the containment. The core is torn open, blows apart in a string of explosions, throws far more of its
+ * fuel and graphite out, and releases its whole inventory: several times the radiation of an excursion.
  */
 public final class ReactorExplosion {
 	/** How far up the blast is followed. */
@@ -44,6 +48,11 @@ public final class ReactorExplosion {
 	private static final double CONE = 1.2;
 	private static final int MAX_LID_FLYING = 900;
 	private static final int MAX_CORE_FLYING = 400;
+	/** Severity of an explosion caused from outside: at the edge of what destroys the reactor, and for a direct hit. */
+	public static final double EXTERNAL_MIN = 1.5;
+	public static final double EXTERNAL_MAX = 2.0;
+	/** How much more of the core's inventory gets out when it is blown apart from outside. */
+	private static final double EXTERNAL_RELEASE = 4;
 	private static final TagKey<Block> CONCRETE = TagKey.create(net.minecraft.core.registries.Registries.BLOCK,
 			net.minecraft.resources.Identifier.fromNamespaceAndPath("radiation", "shielding_concrete"));
 
@@ -86,14 +95,33 @@ public final class ReactorExplosion {
 	}
 
 	public static void explode(ServerLevel level, ReactorControllerBlockEntity reactor, double y, String why) {
+		explode(level, reactor, y, why, false);
+	}
+
+	/** @param external the blast comes from outside: the containment does not hold, whatever it is made of */
+	public static void explode(ServerLevel level, ReactorControllerBlockEntity reactor, double y, String why, boolean external) {
 		CoreModel core = reactor.core;
+		int loaded = 0;
+		if (core != null && core.valid()) {
+			for (BlockPos p : core.fuel) {
+				if (level.getBlockEntity(p) instanceof FuelChannelBlockEntity ch && !ch.rod().isEmpty()) {
+					loaded++;
+				}
+			}
+		}
 		reactor.scram(why);
 		reactor.markDestroyed();
 		if (core == null || !core.valid()) {
 			return;
 		}
+		if (external && loaded == 0) {
+			Fission.LOGGER.warn("Reactor at {} destroyed ({}), no fuel in it", reactor.getBlockPos().toShortString(), why);
+			return;
+		}
+		long t0 = System.nanoTime();
 		RandomSource random = level.getRandom();
 		int fuel = core.fuel.size();
+		int maxCoreFlying = external ? 2 * MAX_CORE_FLYING : MAX_CORE_FLYING;
 		Vec3 center = new Vec3((core.minX + core.maxX + 1) / 2.0, (core.minY + core.maxY + 1) / 2.0, (core.minZ + core.maxZ + 1) / 2.0);
 		Fission.LOGGER.warn("Reactor at {} EXPLODED ({}, severity {}), {} fuel channels", reactor.getBlockPos().toShortString(), why, y, fuel);
 		double need = required(fuel, y);
@@ -132,6 +160,16 @@ public final class ReactorExplosion {
 						break;
 					}
 				}
+				if (external && over) {
+					// torn open from outside: nothing over the core holds
+					holds = false;
+					for (int dy = SCAN_HEIGHT; dy > from && column.size() < 4 * SCAN_HEIGHT; dy--) {
+						BlockPos p = new BlockPos(x, core.maxY + dy, z);
+						if (!level.getBlockState(p).isAir() && !column.contains(p)) {
+							column.add(p);
+						}
+					}
+				}
 				if (holds) {
 					held++;
 				} else {
@@ -146,8 +184,8 @@ public final class ReactorExplosion {
 				}
 			}
 		}
-		double open = overCore == 0 ? 0 : (double) openOverCore / overCore;
-		boolean breached = openOverCore > 0;
+		double open = external ? 1 : overCore == 0 ? 0 : (double) openOverCore / overCore;
+		boolean breached = external || openOverCore > 0;
 		Vec3 downwind = RadiationApi.wind(level).normalize();
 		// the core itself: most fuel becomes corium; graphite, rods and fuel fragments are thrown out where the lid failed
 		List<BlockPos> coriumAt = new ArrayList<>();
@@ -170,6 +208,19 @@ public final class ReactorExplosion {
 			}
 			level.setBlock(p, Blocks.AIR.defaultBlockState(), Block.UPDATE_CLIENTS);
 		}
+		if (external) {
+			// torn apart from outside: the whole core goes up, channel by channel - before anything is thrown, as every
+			// explosion has to look at every falling block around it
+			level.explode(null, center.x, center.y, center.z, (float) (4 + 6 * y), true, Level.ExplosionInteraction.BLOCK);
+			int bursts = Math.clamp(2 + loaded / 12, 3, 8);
+			for (int i = 0; i < bursts; i++) {
+				double bx = core.minX + random.nextDouble() * (core.maxX - core.minX + 1);
+				double by = core.minY + random.nextDouble() * (core.maxY - core.minY + 1);
+				double bz = core.minZ + random.nextDouble() * (core.maxZ - core.minZ + 1);
+				level.explode(null, bx, by, bz, (float) (5 + 3 * y), true, Level.ExplosionInteraction.BLOCK);
+			}
+			level.sendParticles(ParticleTypes.EXPLOSION_EMITTER, center.x, center.y + 4, center.z, 12, 4.0, 4.0, 4.0, 0);
+		}
 		// the lid and everything above goes first, top down so the blocks do not hit each other on the way out
 		int lidFlying = 0, lidGone = 0;
 		fly.sort((a, b) -> Integer.compare(b.getY(), a.getY()));
@@ -189,7 +240,7 @@ public final class ReactorExplosion {
 		}
 		int coreFlying = 0;
 		for (BlockPos p : fragments) {
-			if (coreFlying < MAX_CORE_FLYING) {
+			if (coreFlying < maxCoreFlying) {
 				level.setBlock(p, ModBlocks.FUEL_FRAGMENT.defaultBlockState(), Block.UPDATE_CLIENTS);
 				launchCore(level, p, ModBlocks.FUEL_FRAGMENT.defaultBlockState(), downwind, y, random);
 				coreFlying++;
@@ -200,7 +251,7 @@ public final class ReactorExplosion {
 		List<BlockPos> stays = new ArrayList<>();
 		for (BlockPos p : debris) {
 			boolean out = failed.contains(BlockPos.asLong(p.getX(), 0, p.getZ()));
-			if (out && coreFlying < MAX_CORE_FLYING && random.nextFloat() < 0.6F) {
+			if (out && coreFlying < maxCoreFlying && random.nextFloat() < (external ? 0.85F : 0.6F)) {
 				level.setBlock(p, ModBlocks.REACTOR_DEBRIS.defaultBlockState(), Block.UPDATE_CLIENTS);
 				launchCore(level, p, ModBlocks.REACTOR_DEBRIS.defaultBlockState(), downwind, y, random);
 				coreFlying++;
@@ -208,8 +259,11 @@ public final class ReactorExplosion {
 				stays.add(p);
 			}
 		}
+		long t1 = System.nanoTime();
 		// the blast in the reactor hall
-		level.explode(null, center.x, center.y, center.z, (float) (4 + 6 * y), true, Level.ExplosionInteraction.BLOCK);
+		if (!external) {
+			level.explode(null, center.x, center.y, center.z, (float) (4 + 6 * y), true, Level.ExplosionInteraction.BLOCK);
+		}
 		// the graphite that stays in the shaft, burning (after the blast, which would otherwise blow it away too)
 		for (BlockPos p : stays) {
 			BlockPos at = p;
@@ -222,6 +276,7 @@ public final class ReactorExplosion {
 				level.setBlock(at.above(), BaseFireBlock.getState(level, at.above()), Block.UPDATE_ALL);
 			}
 		}
+		long t2 = System.nanoTime();
 		for (BlockPos p : coriumAt) {
 			if (level.getBlockState(p).isAir() || level.getBlockState(p).canBeReplaced()) {
 				Corium.spawn(level, p, 0);
@@ -229,8 +284,8 @@ public final class ReactorExplosion {
 		}
 		level.playSound(null, center.x, center.y, center.z, ModSounds.REACTOR_BOOM, SoundSource.BLOCKS, 16.0F, 0.7F);
 		level.sendParticles(ParticleTypes.EXPLOSION_EMITTER, center.x, center.y + 1, center.z, 6, 2.0, 1.5, 2.0, 0);
-		Fission.LOGGER.warn("Blast: {} columns held, {} broken ({} of {} over the core open); {} blocks thrown, {} shattered, {} pieces of the core thrown out",
-				held, broken, openOverCore, overCore, lidFlying, lidGone, coreFlying);
+		Fission.LOGGER.warn("Blast: {} columns held, {} broken ({} of {} over the core open); {} blocks thrown, {} shattered, {} pieces of the core thrown out ({} + {} + {} ms)",
+				held, broken, openOverCore, overCore, lidFlying, lidGone, coreFlying, (t1 - t0) / 1_000_000, (t2 - t1) / 1_000_000, (System.nanoTime() - t2) / 1_000_000);
 		if (breached) {
 			Vec3 top = new Vec3(center.x, core.maxY + 1, center.z);
 			for (var player : level.players()) {
@@ -242,12 +297,13 @@ public final class ReactorExplosion {
 			}
 			// what is left of the core keeps radiating from the open shaft (on top of the debris and corium); the short-lived
 			// part fades over days
-			float rads = (float) (4 * fuel * y * open);
-			float radius = (float) (20 + 3 * Math.sqrt(fuel) * (0.5 + y));
+			float rads = (float) (external ? 4 * loaded * EXTERNAL_RELEASE : 4 * fuel * y * open);
+			float radius = (float) ((20 + 3 * Math.sqrt(fuel) * (0.5 + y)) * (external ? 1.25 : 1));
 			String name = RadiationApi.addSource(level, "fission_release", top, rads, radius, RadiationApi.Falloff.LINEAR, true, 2 * 24000L, 0.3F);
 			double strength = 2.2 * y * Math.clamp(Math.sqrt(fuel / 27.0), 0.5, 3.0);
 			// half of the volatile inventory goes up with the explosion; the burning core sends the rest after it
-			RadiationApi.releaseCloud(level, top, strength * open / 2, 10, 85);
+			// blown apart from outside, most of it goes up at once, far more than an excursion lets out
+			RadiationApi.releaseCloud(level, top, external ? strength * EXTERNAL_RELEASE * 0.6 : strength * open / 2, external ? 16 : 10, 85);
 			Fission.LOGGER.warn("Containment breached ({} % of the core open): source '{}' ({} rad/s, {} blocks), cloud {} rad/s",
 					Math.round(open * 100), name, rads, radius, String.format(java.util.Locale.ROOT, "%.2f", strength));
 		} else {

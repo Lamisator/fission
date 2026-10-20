@@ -42,6 +42,8 @@ import org.jspecify.annotations.Nullable;
  */
 public class ReactorControllerBlockEntity extends BlockEntity {
 	public static final double BETA = 0.0065;
+	/** Controllers that have ticked since they were loaded, for {@link net.antwire.fission.api.FissionApi}. */
+	private static final java.util.Set<ReactorControllerBlockEntity> LOADED = java.util.Collections.newSetFromMap(new java.util.WeakHashMap<>());
 	private static final double LAMBDA = 0.08;
 	private static final double GENERATION_TIME = 1.0e-3;
 	private static final double DOPPLER = 2.5e-5;
@@ -188,6 +190,7 @@ public class ReactorControllerBlockEntity extends BlockEntity {
 
 	private void tick(ServerLevel level) {
 		long now = level.getGameTime();
+		LOADED.add(this);
 		if (this.destroyed) {
 			return;
 		}
@@ -537,6 +540,23 @@ public class ReactorControllerBlockEntity extends BlockEntity {
 			this.nextScan = 0;
 			this.rescan(level);
 		}
+	}
+
+	/** The loaded, not yet destroyed reactors in {@code level}. */
+	public static java.util.List<ReactorControllerBlockEntity> loaded(ServerLevel level) {
+		java.util.List<ReactorControllerBlockEntity> out = new java.util.ArrayList<>();
+		for (ReactorControllerBlockEntity r : LOADED) {
+			if (r.getLevel() == level && !r.isRemoved() && !r.destroyed) {
+				out.add(r);
+			}
+		}
+		return out;
+	}
+
+	@Override
+	public void setRemoved() {
+		super.setRemoved();
+		LOADED.remove(this);
 	}
 
 	public void markDestroyed() {
