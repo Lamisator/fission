@@ -23,7 +23,21 @@ public final class Tubes {
 	/** Tube blocks (and channels in a column) one push may travel through. */
 	private static final int MAX_TUBES = 8192;
 
+	/** How long a tube network that found no taker for an item is not searched again for the same item and sender. */
+	private static final int FAILED_TICKS = 100;
+	/**
+	 * Tube networks searched to the end without a taker, per dimension, kind, sending block and item: tube position ->
+	 * game time until which a push from any block on that network fails at once. A plant has hundreds of fuel racks on
+	 * one network of thousands of tubes; when no channel takes fresh fuel, the first rack's search answers for all.
+	 */
+	private static final java.util.Map<String, it.unimi.dsi.fastutil.longs.Long2LongOpenHashMap> FAILED = new java.util.HashMap<>();
+
 	private Tubes() {
+	}
+
+	private static String failedKey(ServerLevel level, net.minecraft.world.level.block.Block source, ItemStack one, TubeKind kind) {
+		return level.dimension().identifier() + "|" + kind + "|" + net.minecraft.core.registries.BuiltInRegistries.BLOCK.getKey(source)
+				+ "|" + net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(one.getItem());
 	}
 
 	/** Sends one item of {@code stack}; true if it went (the caller removes it). */
@@ -46,9 +60,27 @@ public final class Tubes {
 			return false;
 		}
 		net.minecraft.world.level.block.Block source = level.getBlockState(from).getBlock();
+		long now = level.getGameTime();
+		String key = failedKey(level, source, one, kind);
+		it.unimi.dsi.fastutil.longs.Long2LongOpenHashMap failed = FAILED.get(key);
+		if (failed != null) {
+			boolean known = true;
+			for (BlockPos q : queue) {
+				long until = failed.get(q.asLong());
+				if (until <= now || until > now + FAILED_TICKS) {
+					known = false;
+					break;
+				}
+			}
+			if (known) {
+				return false;
+			}
+		}
+		it.unimi.dsi.fastutil.longs.LongArrayList visited = new it.unimi.dsi.fastutil.longs.LongArrayList();
 		int travelled = 0;
 		while (!queue.isEmpty() && travelled++ < MAX_TUBES) {
 			BlockPos p = queue.poll();
+			visited.add(p.asLong());
 			boolean inColumn = level.getBlockState(p).getBlock() instanceof FuelChannelBlock;
 			for (Direction d : Direction.values()) {
 				// inside a channel column the assembly can only go on up or down
@@ -71,6 +103,17 @@ public final class Tubes {
 					// an occupied channel in the column: pass through it to the next one
 					queue.add(q);
 				}
+			}
+		}
+		if (queue.isEmpty()) {
+			// the whole network was searched: nobody on it takes this item now
+			it.unimi.dsi.fastutil.longs.Long2LongOpenHashMap map = FAILED.computeIfAbsent(key, k -> new it.unimi.dsi.fastutil.longs.Long2LongOpenHashMap());
+			if (map.size() > 200_000) {
+				map.clear();
+			}
+			long until = now + FAILED_TICKS;
+			for (int i = 0; i < visited.size(); i++) {
+				map.put(visited.getLong(i), until);
 			}
 		}
 		return false;

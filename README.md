@@ -21,7 +21,7 @@ Fission needs **Fabric API**, **Gridworks 1.1.2** or newer and **Radiation 1.5.0
 
 1. In Prism Launcher, make a Minecraft **26.3** instance with **Fabric** (loader 0.19.5 or newer).
 2. **Edit → Mods → Download mods**: install **Fabric API**.
-3. **Add file**: `gridworks-1.1.2.jar`, `radiation-1.5.0.jar` and `fission-1.4.0.jar`.
+3. **Add file**: `gridworks-1.1.2.jar`, `radiation-1.5.0.jar` and `fission-1.4.1.jar`.
 
 For a server, put the same jars into its `mods` folder. Every player needs them too.
 
@@ -466,6 +466,11 @@ above the centre column.
 
 ## Changes
 
+- **1.4.1**: less server time after an accident. Corium looks for water to boil only where the chunk section can hold
+  any (hundreds of corium blocks in a dry hall used to read 100 blocks each every half second); when a fuel rack's push
+  searches a whole tube network without finding a taker, the other racks on that network skip the same search for 5 s.
+  Use Radiation 1.9.4 with it: it groups the thousands of radiating blocks a blown-up core leaves behind (before, the
+  1000 MW plant's blast stalled the server for 10-17 s every half minute).
 - **1.4.0**: big reactors. A core of 1000 channels and more runs (Kernkraftwerk Funkstadt is now 1152 channels,
   1000 MW): the neutron transport is computed sparsely and, for cores of 300 channels or more, on a background thread
   that also prepares the rod positions ahead; each rod/water grid point keeps its k until the fuel changes. Cores may
@@ -505,7 +510,7 @@ above the centre column.
 ## Building from source
 
 ```
-./gradlew build                                # build/libs/fission-1.4.0.jar
+./gradlew build                                # build/libs/fission-1.4.1.jar
 ./gradlew runClientGameTest [-Pscenes=plant]   # the screenshot tour (plant, fuel, meltdown, explosion, cloud)
 ./gradlew runClientGameTest -Pmap=<unpacked DARC_Funkstadt> -PmapMods=<hamradio.jar,redbutton.jar>
                                                # the Funkstadt plant goes prompt critical

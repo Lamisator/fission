@@ -114,6 +114,9 @@ public final class Corium {
 
 	/** Water anywhere near flashes to steam. */
 	private static void boiling(ServerLevel level, BlockPos pos) {
+		if (!anyWaterNear(level, pos)) {
+			return;
+		}
 		boolean hissed = false;
 		for (BlockPos p : BlockPos.betweenClosed(pos.offset(-2, -1, -2), pos.offset(2, 2, 2))) {
 			BlockState s = level.getBlockState(p);
@@ -133,6 +136,36 @@ public final class Corium {
 		if (hissed) {
 			level.playSound(null, pos, ModSounds.STEAM_HISS, SoundSource.BLOCKS, 1.2F, 0.8F + level.getRandom().nextFloat() * 0.3F);
 		}
+	}
+
+	private static boolean wet(BlockState s) {
+		return s.getFluidState().is(FluidTags.WATER) || s.is(BlockTags.ICE) || s.is(Blocks.SNOW) || s.is(Blocks.SNOW_BLOCK) || s.is(Blocks.POWDER_SNOW);
+	}
+
+	/**
+	 * Whether any chunk section the boiling box touches could hold water, ice or snow at all (by its palette): a pile of
+	 * hundreds of corium blocks in a dry hall then costs a few section checks instead of 100 block reads each.
+	 */
+	private static boolean anyWaterNear(ServerLevel level, BlockPos pos) {
+		for (int cx = (pos.getX() - 2) >> 4; cx <= (pos.getX() + 2) >> 4; cx++) {
+			for (int cz = (pos.getZ() - 2) >> 4; cz <= (pos.getZ() + 2) >> 4; cz++) {
+				var chunk = level.getChunkSource().getChunkNow(cx, cz);
+				if (chunk == null) {
+					return true;
+				}
+				for (int sy = (pos.getY() - 1) >> 4; sy <= (pos.getY() + 2) >> 4; sy++) {
+					int index = chunk.getSectionIndexFromSectionY(sy);
+					if (index < 0 || index >= chunk.getSectionsCount()) {
+						continue;
+					}
+					var section = chunk.getSection(index);
+					if (!section.hasOnlyAir() && section.getStates().maybeHas(Corium::wet)) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
 	}
 
 	private static void burn(ServerLevel level, BlockPos pos, int heat) {
