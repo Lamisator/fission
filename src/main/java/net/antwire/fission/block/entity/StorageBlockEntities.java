@@ -40,11 +40,19 @@ public final class StorageBlockEntities {
 
 		@Override
 		protected void storageTick(ServerLevel level, long now) {
+			if (now < this.retryAt) {
+				return;
+			}
+			// all fresh assemblies go to the same places: if one finds no empty or spent channel, none does
 			for (int i = 0; i < this.items.size(); i++) {
 				ItemStack st = this.items.get(i);
-				if (!st.isEmpty() && Tubes.push(level, this.worldPosition, st, TubeKind.FUEL)) {
-					st.shrink(1);
-					this.setChanged();
+				if (!st.isEmpty()) {
+					if (Tubes.push(level, this.worldPosition, st, TubeKind.FUEL)) {
+						st.shrink(1);
+						this.setChanged();
+					} else {
+						this.retryAt = now + RETRY_TICKS + Math.floorMod(this.worldPosition.asLong(), 200);
+					}
 					return;
 				}
 			}
@@ -90,12 +98,20 @@ public final class StorageBlockEntities {
 					this.setChanged();
 				}
 			}
+			if (now < this.retryAt) {
+				return;
+			}
+			// cooled spent fuel goes on to reprocessing; if one assembly finds no taker, the others would not either
 			for (int i = 0; i < this.items.size(); i++) {
 				ItemStack st = this.items.get(i);
 				FuelData d = st.get(ModComponents.FUEL);
-				if (d != null && d.spent() && now - d.time() >= COOLING_TICKS && Tubes.push(level, this.worldPosition, st, TubeKind.FUEL)) {
-					st.shrink(1);
-					this.setChanged();
+				if (d != null && d.spent() && now - d.time() >= COOLING_TICKS) {
+					if (Tubes.push(level, this.worldPosition, st, TubeKind.FUEL)) {
+						st.shrink(1);
+						this.setChanged();
+					} else {
+						this.retryAt = now + RETRY_TICKS + Math.floorMod(this.worldPosition.asLong(), 200);
+					}
 					return;
 				}
 			}

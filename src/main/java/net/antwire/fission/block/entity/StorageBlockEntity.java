@@ -22,6 +22,13 @@ import net.minecraft.world.level.storage.ValueOutput;
 public abstract class StorageBlockEntity extends BaseContainerBlockEntity implements NuclearContainer {
 	protected NonNullList<ItemStack> items;
 	public double contentsRads;
+	/**
+	 * Game time before which this block does not try to send anything again: a push that found no taker walked the whole
+	 * tube network, and a fuel store of hundreds of racks must not do that every two seconds each.
+	 */
+	protected long retryAt;
+	/** Ticks between attempts after a push found no taker (30 s). */
+	protected static final int RETRY_TICKS = 600;
 
 	protected StorageBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state, int size) {
 		super(type, pos, state);

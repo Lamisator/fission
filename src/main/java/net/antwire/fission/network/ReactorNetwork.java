@@ -108,7 +108,7 @@ public final class ReactorNetwork {
 				case CMD_SCRAM -> r.scram("Manual SCRAM (" + player.getName().getString() + ")");
 				case CMD_RESET -> r.reset();
 				case CMD_AUTO -> r.setAuto(p.value > 0.5);
-				case CMD_SETPOINT -> r.setpoint = Math.clamp(p.value, 100, 1.2 * r.nominal());
+				case CMD_SETPOINT -> r.setSetpoint(p.value);
 				case CMD_RPS -> r.rps = p.value > 0.5;
 				default -> {
 				}

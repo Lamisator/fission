@@ -21,7 +21,7 @@ Fission needs **Fabric API**, **Gridworks 1.1.2** or newer and **Radiation 1.5.0
 
 1. In Prism Launcher, make a Minecraft **26.3** instance with **Fabric** (loader 0.19.5 or newer).
 2. **Edit → Mods → Download mods**: install **Fabric API**.
-3. **Add file**: `gridworks-1.1.2.jar`, `radiation-1.5.0.jar` and `fission-1.2.1.jar`.
+3. **Add file**: `gridworks-1.1.2.jar`, `radiation-1.5.0.jar` and `fission-1.4.0.jar`.
 
 For a server, put the same jars into its `mods` folder. Every player needs them too.
 
@@ -88,6 +88,11 @@ with rods in).
 
 ## Physics
 
+Cores of any size work: the neutron balance of a core with hundreds of channels (300 or more) is worked out on a
+background thread, which also prepares the rod positions next to the present one, so a 1000 MW core costs the server
+well under a millisecond per tick. While a new result is on its way, k follows the rods along the slope of the last one.
+A core may have up to 32 768 blocks; fuel travels up to 8192 tubes and channels.
+
 Everything that matters for running a reactor is simulated:
 
 - **Point kinetics with delayed neutrons** (β = 0.65 %). Below prompt critical, the power changes with a
@@ -109,9 +114,9 @@ Minecraft day is 24 hours, like Gridworks' energy.
 | Block | What it does |
 |---|---|
 | **Feedwater Pump** | Pumps up to 20 kg/s from water next to it. Needs **10 kV** from Gridworks: about 9 kW per kg/s against 70 bar, much less while filling. Short of power, it slows down. Redstone stops it. |
-| **Feedwater Pipe** (blue) | From the pumps to the reactor's feedwater inlet. |
+| **Feedwater Pipe** (blue) | From the pumps to the reactor's feedwater inlet. 40 kg/s per network. |
 | **Steam Pipe** (silver) | From the steam outlet to turbines and condensers. 40 kg/s per network. |
-| **Steam Turbine** | Spins up to 3000 rpm on steam once the reactor has 40 bar. Shaft end is its front. |
+| **Steam Turbine** | Spins up to 3000 rpm on steam once the reactor has 40 bar. Shaft end is its front. Keeps 1 MW of spinning reserve, so its generator picks up a new load within a second or two. |
 | **Turbine Generator** | On the turbine's shaft end: up to **5 MW at 10 kV** into Gridworks once synchronised. Put a substation transformer straight onto it for 110 kV, or MV cable. |
 | **Condenser** | Turbine bypass: above 70 bar it takes the steam the turbines do not need. 20 kg/s with cooling water next to it, 3 kg/s air-cooled. |
 | **Pressure Relief Valve** | Blows off steam above 85 bar (and loses that water). Without one, the vessel bursts at 150 bar. |
@@ -120,6 +125,11 @@ The core holds 100 kg of water per fuel channel. It heats up, boils (1 MW makes 
 and builds pressure; the turbine takes what its generator delivers, 0.7 MJ of electricity per kg of
 70 bar steam (about 35 %). The pumps run on 10 kV, so a plant needs outside power to start, then can
 run its pumps from its own generator.
+
+Each pipe network carries 40 kg/s, so a big reactor needs several inlets and outlets, each on its own network
+(networks that touch become one): 1000 MW boils 500 kg/s, which takes at least 13 feedwater and 13 steam networks.
+A pump can sit right against a turbine generator (or on a short MV cable from it), a house turbine on one of the
+steam networks: that powers the pumps without going through transformers and the grid.
 
 ![The turbine hall: steam pipe, condenser, turbine, generator and step-down transformer](docs/img/turbine_hall.png)
 
@@ -133,8 +143,13 @@ then on each piece.
   - Gauges: hottest fuel temperature, pressure, water level, steam and feed flow, xenon, decay heat.
   - Core map: every fuel channel's power, coloured from blue to red.
   - **Rods**: drag the slider, or IN/OUT in 1 % and 5 % steps. The drives move 0.5 %/s.
-  - **AUTO**: holds the power setpoint (÷2 / ×2) with the rods, never faster than about a 33 s period. It steers
+  - **AUTO**: holds the power setpoint with the rods, never faster than about a 33 s period. It steers
     by the rods' real worth where they are, which in a burnt-up core is far higher near the top of the stroke.
+  - **Setpoint**: click the setpoint display and type any value in MW (decimal point or comma), Enter sets it, Esc
+    cancels; or ÷2 / ×2. From 100 W to 120 % of nominal. A setpoint chosen while AUTO is off is where AUTO goes
+    when you switch it on; otherwise switching AUTO on holds the present power.
+
+    ![Typing a setpoint of 12.5 MW](docs/img/console_setpoint.jpg)
   - **RPS ON / BYPASS**: the reactor protection system. Bypassing it is how Chernobyl happened.
   - **SCRAM**: lift the guard, press the button. All rods drop in within three seconds. **RESET** once
     the rods are in and nothing calls for a SCRAM.
@@ -208,9 +223,9 @@ Radiation 1.5.0: three blocks of concrete leave 0.1 %).
 
 | Block | |
 |---|---|
-| **Fuel Rack** | Fresh fuel. Sends it down fuel transfer tubes to empty fuel channels. |
+| **Fuel Rack** | Fresh fuel. Sends it down fuel transfer tubes to empty fuel channels (and to spent ones in a running core). A rack that finds no taker tries again after 30 seconds, so a store of hundreds of racks costs little. |
 | **Fuel Transfer Tube** | Moves fuel assemblies. On-load refuelling: in a running core a spent assembly stays in its channel until a fresh one arrives by tube, which takes its place over three minutes (the refuelling machine lowers it in), so the reactivity rises a few pcm a second instead of jumping; the spent one leaves by tube. Outside a reactor spent assemblies leave on their own. A column of stacked fuel channels is one pressure tube: assemblies travel up and down through it, so one tube on top of each column reaches every channel in it. |
-| **Holding Basin** | A pool for short-lived isotopes and spent fuel; the water lets through only 0.02 %. Canisters that have decayed become harmless empty canisters. Spent fuel that has cooled for a day goes on by tube to reprocessing. |
+| **Holding Basin** | A pool for short-lived isotopes and spent fuel; the water lets through only 0.02 %. Canisters that have decayed become harmless empty canisters. Spent fuel that has cooled for a day goes on by tube to reprocessing (if nothing takes it, the basin tries again after 30 seconds). |
 | **Reprocessing Plant** | 230 V, 3 kW, heavily shielded (5 % gets out). Dissolves a cooled spent assembly into one canister per isotope, with as much as the rod really holds, plus plutonium and depleted uranium. Sends them out by isotope pipe. |
 | **Isotope Pipe** | Moves canisters, plutonium, depleted uranium and debris. Each item goes to the nearest block that takes it. |
 | **Long-Term Storage Drum** | For long-lived isotopes, plutonium and debris. It holds back about 97 % of the radiation, not all of it. Put drums behind concrete. |
@@ -337,41 +352,36 @@ Tested on the download map: a thermonuclear warhead 49 blocks from the Funkstadt
 ## A large plant: Kernkraftwerk Funkstadt
 
 The **DARC Funkstadt** sample map (from the Ham Radio mod) has a full-size plant built with Fission, running when
-the map loads. It powers the whole map through Gridworks, including a 500 kW longwave transmitter. See the
+the map loads, at **1000 MW** thermal in AUTO since 21 October 2026 (Fission 1.4.0). It powers the whole map through
+Gridworks, including a 500 kW longwave transmitter. See the
 [Ham Radio handbook](https://mchamradio.antwire.net/handbook/hamradio/#nuclear-power-plant) for the tour.
 
-![Kernkraftwerk Funkstadt in the DARC Funkstadt map: the open core seen from the gallery](docs/img/funkstadt_plant.jpg)
+| The hall floor: the lid over the core, the refuelling manifold, the controller pillar | A house turbine set in the basement: turbine, generator, MV cable, two feedwater pumps |
+|---|---|
+| ![](docs/img/funkstadt_1000mw_hall.jpg) | ![](docs/img/funkstadt_1000mw_basement.jpg) |
 
-- **Core**: 6 × 6 columns of three LEU fuel channels (108 MW thermal) at pitch 2 in graphite, 43 control rod columns
-  (in every gap between four fuel columns, and in three lines between neighbouring fuel columns), a beryllium shell. k = 1.20 with the rods
-  out, 0.87 with them in, still 1.11 at half burnup. In AUTO at 15 MW the rods sit at about 42 %.
-- **Refuelling**: standpipes on top of every column (1.0.1: assemblies pass up and down through the column), a
-  manifold above them, out through the hall wall to the fresh fuel racks and the spent fuel pool.
-- **Open, RBMK style** (since the night of 6 October 2026): no containment and no shield. The core stands open on a
-  steel pedestal in a windowless concrete, neon-lit reactor hall (as at Chernobyl), its top layers removed so the lattice shows (k drops from
-  1.20 to 1.19). Galleries read about 0.4 rad/s, the control room behind the hall's concrete and its own heavy concrete wall under 0.01. Nothing holds an
-  excursion any more: see below.
-- **Steam and water**: one outlet to four turbine sets and three water-cooled condensers; three feedwater pumps at a
-  sea-water intake, powered at 10 kV from the 110 kV grid through a station transformer.
+- **Core**: 12 × 12 columns of eight LEU fuel channels: **1152 channels, 1152 MW nominal**, at pitch 2 in graphite,
+  sunk below the floor of the windowless concrete reactor hall like an RBMK. 265 control rod columns (on every
+  odd/odd lattice point and between neighbouring columns in every second row), four columns of fixed absorbers
+  (reactor vessel steel) in the middle to flatten the power, graphite above and below the fuel, beryllium all round.
+  k = 1.25 with the rods out, 0.76 with them in; at 1000 MW the rods sit at about 31 %, the power peaking is 1.8 and
+  the hottest fuel about 1100 °C. The void coefficient is negative (k 1.13 dry).
+- **Shielding**: the top reflector lies under a two-block heavy concrete lid that is the hall floor, the sides behind
+  two blocks of heavy concrete. The hall, its galleries, the basement and the control room all read 0.00 rad/s at full
+  power.
+- **Refuelling**: a standpipe up through the lid on every column, a manifold on the hall floor, out through the west
+  wall to the fuel building: a magazine of **384 fuel racks (3456 LEU assemblies)** and the spent fuel pool with
+  **216 holding basins** on two levels. At 1000 MW the core burns about 67 assemblies a Minecraft day (200 an hour of
+  real time); the first core load and the magazine last about a day of real time at full power, twice that at 500 MW.
+- **Steam and water** (in the basement round the core): 15 feedwater networks (an inlet and two 20 kg/s pumps on
+  sea water) and 15 steam networks (an outlet and two water-cooled condensers). Fourteen steam networks also drive a
+  house turbine whose generator powers one feedwater network's pumps directly at 10 kV; the fifteenth is the main
+  steam line to the four 5 MW turbine sets in the turbine hall, and the fifteenth feedwater network is the old line to
+  the three intake pumps on the 110 kV grid, which fill a cold core before there are 40 bar for the house turbines.
+- The controller stands where it always did, on a steel pillar above the core, so the control room still works.
 
-```
- top view of a fuel layer      F fuel channel   R control rod   G graphite   B beryllium
-   B B B B B B B B B B B B B B B
-   B G G G G G G G G G G G G G B
-   B G F R F G F R F G F R F G B
-   B G G R G R G R G R G R G G B
-   B G F R F G F R F G F R F G B
-   B G G R G R G R G R G R G G B
-   B G F R F G F R F G F R F G B
-   B G G R G R G R G R G R G G B
-   B G F R F G F R F G F R F G B
-   B G G R G R G R G R G R G G B
-   B G F R F G F R F G F R F G B
-   B G G R G R G R G R G R G G B
-   B G F R F G F R F G F R F G B
-   B G G G G G G G G G G G G G B
-   B B B B B B B B B B B B B B B
-```
+The 108-channel core of the first plant (6 × 6 columns of three channels, open on top) is described in older versions
+of this handbook. The explosion test below was made with it.
 
 ### When it goes prompt critical
 
@@ -456,6 +466,15 @@ above the centre column.
 
 ## Changes
 
+- **1.4.0**: big reactors. A core of 1000 channels and more runs (Kernkraftwerk Funkstadt is now 1152 channels,
+  1000 MW): the neutron transport is computed sparsely and, for cores of 300 channels or more, on a background thread
+  that also prepares the rod positions ahead; each rod/water grid point keeps its k until the fuel changes. Cores may
+  have 32 768 blocks (was 4096), tubes reach 8192 (was 2048). Pipes carry 40 kg/s per network as documented (the limit
+  used to be shared by all of a reactor's inlets, so no reactor could cool more than about 80 MW). The AUTO setpoint
+  can be typed in (MW) on the console. Turbines keep 1 MW of spinning reserve, so generators pick up new loads quickly
+  (a bank of pumps behind transformers used to collapse the grid). Fuel racks and holding basins that find no taker
+  for a push wait 30 seconds before trying again.
+
 - **1.2.1**: the smoke column rises 80 blocks and the clouds float about 85 blocks above the ground (about three times higher than before).
 - **1.2.2**: refuelling a running core no longer makes it jump. A fresh assembly used to drop into a channel the
   moment the spent one left; in the burnt-up middle of a core one such exchange added about 600 pcm in a single tick,
@@ -486,7 +505,7 @@ above the centre column.
 ## Building from source
 
 ```
-./gradlew build                                # build/libs/fission-1.2.2.jar
+./gradlew build                                # build/libs/fission-1.4.0.jar
 ./gradlew runClientGameTest [-Pscenes=plant]   # the screenshot tour (plant, fuel, meltdown, explosion, cloud)
 ./gradlew runClientGameTest -Pmap=<unpacked DARC_Funkstadt> -PmapMods=<hamradio.jar,redbutton.jar>
                                                # the Funkstadt plant goes prompt critical

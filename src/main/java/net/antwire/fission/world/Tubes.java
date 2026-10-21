@@ -21,7 +21,7 @@ import java.util.Set;
  */
 public final class Tubes {
 	/** Tube blocks (and channels in a column) one push may travel through. */
-	private static final int MAX_TUBES = 2048;
+	private static final int MAX_TUBES = 8192;
 
 	private Tubes() {
 	}

@@ -71,6 +71,8 @@ public class ReactorControllerBlockEntity extends BlockEntity {
 	public String trip = "";
 	public boolean auto;
 	public double setpoint = 1.0e6;
+	/** A setpoint was chosen while AUTO was off: AUTO then steers to it instead of holding the present power. */
+	private boolean setpointChosen;
 	public boolean rps = true;
 	public double fuelTemp = 20;
 	public double waterTemp = 20;
@@ -173,11 +175,18 @@ public class ReactorControllerBlockEntity extends BlockEntity {
 
 	public void setAuto(boolean on) {
 		if (!this.scram) {
-			this.auto = on;
-			if (on) {
+			if (on && !this.auto && !this.setpointChosen) {
 				this.setpoint = Math.max(this.thermalPower(), 1000);
 			}
+			this.auto = on;
+			this.setpointChosen = false;
 		}
+	}
+
+	/** The AUTO power setpoint in watts (100 W up to 120 % of nominal); chosen with AUTO off, AUTO steers to it once engaged. */
+	public void setSetpoint(double watts) {
+		this.setpoint = Math.clamp(watts, 100, 1.2 * this.nominal());
+		this.setpointChosen = !this.auto;
 	}
 
 	// ------------------------------------------------------------------ tick
@@ -196,7 +205,8 @@ public class ReactorControllerBlockEntity extends BlockEntity {
 		}
 		if (this.core == null || now >= this.nextScan) {
 			this.rescan(level);
-			this.nextScan = now + 40;
+			// a big core takes a while to walk through; it is looked at again every ten seconds instead of two
+			this.nextScan = now + (this.core != null && this.core.roles.size() > 2000 ? 200 : 40);
 		}
 		CoreModel core = this.core;
 		if (core == null || !core.valid()) {
@@ -238,9 +248,15 @@ public class ReactorControllerBlockEntity extends BlockEntity {
 		}
 		double k = core.k;
 		this.xenonWorth = XENON_WORTH * this.xenon / XE_EQ_FULL;
-		this.rho = k > 0 ? (k - 1) / k - DOPPLER * (this.fuelTemp - 20) - this.xenonWorth : -1;
+		// a big core's first solve runs in the background for a second or two: the chain reaction holds until it is known
+		boolean known = core.ready();
+		if (known) {
+			this.rho = k > 0 ? (k - 1) / k - DOPPLER * (this.fuelTemp - 20) - this.xenonWorth : -1;
+		}
 		// point kinetics, prompt jump approximation below prompt critical
-		if (this.rho < BETA * 0.999) {
+		if (!known) {
+			// keep power and precursors where they are
+		} else if (this.rho < BETA * 0.999) {
 			this.precursor *= Math.exp(LAMBDA * this.rho / (BETA - this.rho) * DT);
 			this.power = this.precursor * BETA / (BETA - this.rho);
 		} else {
@@ -288,7 +304,7 @@ public class ReactorControllerBlockEntity extends BlockEntity {
 		if (why != null && this.rps) {
 			this.scram(why);
 		}
-		if (this.auto && !this.scram) {
+		if (this.auto && !this.scram && known) {
 			this.regulate();
 		}
 		for (int i = 0; i < n && i < this.energy.length; i++) {
@@ -608,6 +624,7 @@ public class ReactorControllerBlockEntity extends BlockEntity {
 		this.trip = input.getStringOr("trip", "");
 		this.auto = input.getBooleanOr("auto", false);
 		this.setpoint = input.getDoubleOr("setpoint", 1e6);
+		this.setpointChosen = input.getBooleanOr("setpoint_chosen", false);
 		this.rps = input.getBooleanOr("rps", true);
 		this.fuelTemp = input.getDoubleOr("fuel_temp", 20);
 		this.waterTemp = input.getDoubleOr("water_temp", 20);
@@ -642,6 +659,7 @@ public class ReactorControllerBlockEntity extends BlockEntity {
 		output.putString("trip", this.trip);
 		output.putBoolean("auto", this.auto);
 		output.putDouble("setpoint", this.setpoint);
+		output.putBoolean("setpoint_chosen", this.setpointChosen);
 		output.putBoolean("rps", this.rps);
 		output.putDouble("fuel_temp", this.fuelTemp);
 		output.putDouble("water_temp", this.waterTemp);

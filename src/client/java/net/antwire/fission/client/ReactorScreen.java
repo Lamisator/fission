@@ -7,6 +7,9 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
+import com.mojang.blaze3d.platform.InputConstants;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.BlockPos;
@@ -36,6 +39,8 @@ public class ReactorScreen extends Screen {
 	private boolean coverOpen;
 	private boolean dragging;
 	private int ticks;
+	/** The setpoint being typed in (MW), or null when not editing. */
+	private @Nullable String setpointText;
 
 	public ReactorScreen(BlockPos reactor) {
 		super(Component.translatable("screen.fission.reactor"));
@@ -241,7 +246,19 @@ public class ReactorScreen extends Screen {
 		int px = x + 216;
 		g.text(this.font, "SETPOINT", px, cy0, DIM, false);
 		g.fill(px, cy0 + 12, px + 70, cy0 + 26, PANEL);
-		g.text(this.font, mw(v(s, V_SETPOINT)), px + 4, cy0 + 15, auto ? GREEN : DIM, false);
+		if (this.setpointText != null) {
+			// typing a setpoint: amber frame, the digits, a blinking caret and the unit
+			g.fill(px, cy0 + 12, px + 70, cy0 + 13, AMBER);
+			g.fill(px, cy0 + 25, px + 70, cy0 + 26, AMBER);
+			String t = this.setpointText + (this.ticks / 6 % 2 == 0 ? "_" : " ");
+			g.text(this.font, t, px + 4, cy0 + 15, AMBER, false);
+			g.text(this.font, "MW", px + 66 - this.font.width("MW"), cy0 + 15, DIM, false);
+		} else {
+			g.text(this.font, mw(v(s, V_SETPOINT)), px + 4, cy0 + 15, auto ? GREEN : DIM, false);
+			if (in(mouseX, mouseY, px, cy0 + 12, 70, 14)) {
+				g.fill(px, cy0 + 25, px + 70, cy0 + 26, FRAME);
+			}
+		}
 		this.button(g, px, cy0 + 28, 34, "÷2", mouseX, mouseY, true);
 		this.button(g, px + 36, cy0 + 28, 34, "×2", mouseX, mouseY, true);
 		// protection system
@@ -350,6 +367,12 @@ public class ReactorScreen extends Screen {
 		if (in(mx, my, sx + 138, cy0 + 28, 30, 14)) { this.send(CMD_ROD_TARGET, rods - (shift ? 0.002 : 0.01)); return true; }
 		if (in(mx, my, sx + 170, cy0 + 28, 30, 14)) { this.send(CMD_ROD_TARGET, rods - 0.05); return true; }
 		if (in(mx, my, sx + 66, cy0 + 28, 68, 14)) { this.send(CMD_AUTO, v(s, V_AUTO) > 0.5 ? 0 : 1); return true; }
+		if (in(mx, my, px, cy0 + 12, 70, 14)) {
+			// click the setpoint display to type a value in MW
+			this.setpointText = this.setpointText == null ? "" : null;
+			return true;
+		}
+		this.setpointText = null;
 		if (in(mx, my, px, cy0 + 28, 34, 14)) { this.send(CMD_SETPOINT, v(s, V_SETPOINT) / 2); return true; }
 		if (in(mx, my, px + 36, cy0 + 28, 34, 14)) { this.send(CMD_SETPOINT, v(s, V_SETPOINT) * 2); return true; }
 		if (in(mx, my, px + 76, cy0 + 12, 46, 14)) { this.send(CMD_RPS, v(s, V_RPS) > 0.5 ? 0 : 1); return true; }
@@ -367,6 +390,45 @@ public class ReactorScreen extends Screen {
 			return true;
 		}
 		return super.mouseClicked(event, doubleClick);
+	}
+
+	@Override
+	public boolean charTyped(CharacterEvent event) {
+		if (this.setpointText != null) {
+			String c = event.codepointAsString();
+			if (c.matches("[0-9.,]") && this.setpointText.length() < 8) {
+				this.setpointText += c.equals(",") ? "." : c;
+			}
+			return true;
+		}
+		return super.charTyped(event);
+	}
+
+	@Override
+	public boolean keyPressed(KeyEvent event) {
+		if (this.setpointText != null) {
+			switch (event.key()) {
+				case InputConstants.KEY_BACKSPACE -> {
+					if (!this.setpointText.isEmpty()) this.setpointText = this.setpointText.substring(0, this.setpointText.length() - 1);
+				}
+				case InputConstants.KEY_RETURN, InputConstants.KEY_NUMPADENTER -> {
+					try {
+						double mw = Double.parseDouble(this.setpointText);
+						if (mw > 0) {
+							this.send(CMD_SETPOINT, mw * 1e6);
+						}
+					} catch (NumberFormatException ignored) {
+						// nothing sensible typed: leave the setpoint as it was
+					}
+					this.setpointText = null;
+				}
+				case InputConstants.KEY_ESCAPE -> this.setpointText = null;
+				default -> {
+				}
+			}
+			return true;
+		}
+		return super.keyPressed(event);
 	}
 
 	@Override
@@ -393,5 +455,10 @@ public class ReactorScreen extends Screen {
 	/** For screenshots and tests. */
 	public void openCover() {
 		this.coverOpen = true;
+	}
+
+	/** For tests: the middle of the setpoint display, in GUI coordinates. */
+	public double[] setpointDisplay() {
+		return new double[] {this.originX() + (this.left() + 216 + 35) * this.scale(), this.originY() + (this.top() + 210 + 19) * this.scale()};
 	}
 }

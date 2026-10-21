@@ -14,12 +14,17 @@ import net.minecraft.world.level.block.state.BlockState;
 /**
  * A steam turbine: spins up to 3000 rpm on 2 kg/s of steam once there are 40 bar, then its generator synchronises and
  * the turbine takes what the generator delivers: 0.7 MJ of electricity per kg of 70 bar steam, a little less at
- * lower pressure. Without steam it runs down.
+ * lower pressure, plus 1 MW of spinning reserve. Without steam it runs down.
  */
 public class SteamTurbineBlockEntity extends BlockEntity {
 	public static final double SYNC_RPM = 2900;
 	public static final double JOULES_PER_KG = 0.7e6;
 	private static final double IDLE_STEAM = 0.25;
+	/**
+	 * Spinning reserve: the governor keeps the valves open for this much more than the generator delivers, so a load that
+	 * comes on (a bank of feedwater pumps) is picked up within a second or two instead of creeping up 15 % per step.
+	 */
+	public static final double RESERVE_WATTS = 1.0e6;
 	public double rpm;
 	public double steamIn;
 	public double pressure;
@@ -39,7 +44,7 @@ public class SteamTurbineBlockEntity extends BlockEntity {
 		if (this.rpm < SYNC_RPM) {
 			return 2.0;
 		}
-		return Math.min(12, IDLE_STEAM + 0.2 + 1.15 * this.electric / JOULES_PER_KG);
+		return Math.min(12, IDLE_STEAM + 0.2 + (1.15 * this.electric + RESERVE_WATTS) / JOULES_PER_KG);
 	}
 
 	public void receive(double rate, double pressure) {

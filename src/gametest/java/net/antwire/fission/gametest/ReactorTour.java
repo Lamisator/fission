@@ -287,6 +287,22 @@ public class ReactorTour implements FabricClientGameTest {
 		context.runOnClient(mc -> mc.gui.setScreen(new ReactorScreen(controller)));
 		context.waitTicks(30);
 		this.shot(context, "console_running");
+		// type an AUTO setpoint: click the setpoint display, type 12.5 (MW), Enter
+		double[] box = context.computeOnClient(mc -> mc.gui.screen() instanceof ReactorScreen s ? s.setpointDisplay() : new double[2]);
+		double gui = context.computeOnClient(mc -> mc.getWindow().getGuiScale());
+		context.getInput().setCursorPos(box[0] * gui, box[1] * gui);
+		context.getInput().pressMouse(0);
+		context.getInput().typeChars("12,5");
+		context.waitTicks(5);
+		this.shot(context, "console_setpoint_typing");
+		context.getInput().pressKey(com.mojang.blaze3d.platform.InputConstants.KEY_RETURN);
+		context.waitTicks(20);
+		double setpoint = sp.getServer().computeOnServer(server ->
+				((ReactorControllerBlockEntity) server.overworld().getBlockEntity(controller)).setpoint);
+		System.out.println(String.format(Locale.ROOT, "[reactor-tour] typed setpoint: %.3f MW", setpoint / 1e6));
+		if (Math.abs(setpoint - 12.5e6) > 1) {
+			throw new AssertionError("typed setpoint not applied: " + setpoint);
+		}
 		context.runOnClient(mc -> {
 			if (mc.gui.screen() instanceof ReactorScreen s) s.openCover();
 		});
