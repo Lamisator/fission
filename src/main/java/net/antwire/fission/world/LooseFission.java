@@ -14,11 +14,13 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderSet;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.Container;
 import net.minecraft.world.damagesource.DamageType;
@@ -27,6 +29,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.DamageResistant;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.Vec3;
@@ -68,6 +71,9 @@ public final class LooseFission {
 		ServerEntityEvents.ENTITY_LOAD.register((entity, level) -> {
 			if (entity instanceof ItemEntity item) {
 				guard(item, level.getGameTime());
+			} else if (entity instanceof ServerPlayer player) {
+				repair(player.getInventory(), level);
+				repair(player.getEnderChestInventory(), level);
 			}
 		});
 		ServerChunkEvents.CHUNK_LOAD.register((level, chunk, generated) -> {
@@ -101,15 +107,42 @@ public final class LooseFission {
 	private static void guard(ItemEntity item, long now) {
 		ItemStack stack = item.getItem();
 		if (!isProduct(stack, now)) return;
-		if (!stack.has(DataComponents.DAMAGE_RESISTANT)) {
-			var tag = item.level().registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).get(RESISTS);
-			if (tag.isPresent()) {
+		DamageResistant had = stack.get(DataComponents.DAMAGE_RESISTANT);
+		if (had == null || named(had)) {
+			HolderSet<DamageType> types = resists(item.level());
+			if (types != null) {
 				ItemStack copy = stack.copy();
-				copy.set(DataComponents.DAMAGE_RESISTANT, new DamageResistant(tag.get()));
+				copy.set(DataComponents.DAMAGE_RESISTANT, new DamageResistant(types));
 				item.setItem(copy);
 			}
 		}
 		item.setUnlimitedLifetime();
+	}
+
+	/**
+	 * The damage types fission products resist, as a plain list: clients do not resolve the tag, so an item naming it
+	 * cannot be decoded there and kicks the player the moment it comes into view.
+	 */
+	private static HolderSet<DamageType> resists(Level level) {
+		var tag = level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).get(RESISTS);
+		return tag.map(t -> HolderSet.direct(t.stream().toList())).orElse(null);
+	}
+
+	/** Made by 1.5.0: names the tag. */
+	private static boolean named(DamageResistant resistant) {
+		return resistant.types().unwrapKey().filter(RESISTS::equals).isPresent();
+	}
+
+	/** Swaps the tag in stacks made by 1.5.0 for the plain list. */
+	private static void repair(Container c, Level level) {
+		HolderSet<DamageType> types = null;
+		for (int i = 0; i < c.getContainerSize(); i++) {
+			ItemStack s = c.getItem(i);
+			DamageResistant had = s.get(DataComponents.DAMAGE_RESISTANT);
+			if (had == null || !named(had)) continue;
+			if (types == null && (types = resists(level)) == null) return;
+			s.set(DataComponents.DAMAGE_RESISTANT, new DamageResistant(types));
+		}
 	}
 
 	private static void tick(MinecraftServer server) {
@@ -127,7 +160,11 @@ public final class LooseFission {
 					guard(item, now);
 					radiate(level, "fission_item_" + item.getStringUUID(), item.position().add(0, 0.25, 0), item.blockPosition(),
 							Dose.radsAtOneMetre(stack, now), seconds);
-				} else if (e instanceof Container c && e.isAlive() && !ours(BuiltInRegistries.ENTITY_TYPE.getKey(e.getType()).getNamespace())) {
+				} else if (e instanceof ServerPlayer player) {
+					repair(player.getInventory(), level);
+				} else if (e instanceof Container c && e.isAlive()) {
+					repair(c, level);
+					if (ours(BuiltInRegistries.ENTITY_TYPE.getKey(e.getType()).getNamespace())) continue;
 					double dose = productDose(c, now);
 					if (dose > 0) {
 						radiate(level, "fission_cart_" + e.getStringUUID(), e.position().add(0, 0.5, 0), e.blockPosition(), dose, seconds);
@@ -169,6 +206,7 @@ public final class LooseFission {
 			if (chunk == null) continue;
 			for (BlockEntity be : chunk.getBlockEntities().values()) {
 				if (!(be instanceof Container c) || be.isRemoved()) continue;
+				repair(c, level);
 				if (ours(BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(be.getType()).getNamespace())) continue;
 				if (productDose(c, now) > 0) {
 					String k = "fission_store_" + level.dimension().identifier() + "_" + be.getBlockPos().toShortString().replace(", ", "_");

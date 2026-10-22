@@ -21,7 +21,7 @@ Fission needs **Fabric API**, **Gridworks 1.1.2** or newer and **Radiation 1.10.
 
 1. In Prism Launcher, make a Minecraft **26.3** instance with **Fabric** (loader 0.19.5 or newer).
 2. **Edit → Mods → Download mods**: install **Fabric API**.
-3. **Add file**: `gridworks-1.1.2.jar`, `radiation-1.10.0.jar` and `fission-1.5.0.jar`.
+3. **Add file**: `gridworks-1.1.2.jar`, `radiation-1.10.0.jar` and `fission-1.5.1.jar`.
 
 For a server, put the same jars into its `mods` folder. Every player needs them too.
 
@@ -511,6 +511,9 @@ above the centre column.
 
 ## Changes
 
+- **1.5.1**: fix: fission products lying around (for example the pieces of an exploded core) kicked every player who
+  came near them ("Failed to decode packet set_entity_data"). Their fire and blast resistance named a damage type tag
+  that clients cannot resolve; it is now sent as a plain list, and items from 1.5.0 are repaired when they load.
 - **1.5.0**: CASTOR transport. CASTOR wagons, a shunting locomotive that couples the wagons against it, station rails,
   gantry cranes that load and unload CASTORs, and final repository cells (see [CASTOR transport](#castor-transport)).
   Fission products (spent fuel, active canisters, plutonium, core debris) can no longer be destroyed by fire, lava,
@@ -560,7 +563,7 @@ above the centre column.
 ## Building from source
 
 ```
-./gradlew build                                # build/libs/fission-1.5.0.jar
+./gradlew build                                # build/libs/fission-1.5.1.jar
 ./gradlew runClientGameTest [-Pscenes=plant]   # the screenshot tour (plant, fuel, meltdown, explosion, cloud)
 ./gradlew runClientGameTest -Pmap=<unpacked DARC_Funkstadt> -PmapMods=<hamradio.jar,redbutton.jar>
                                                # the Funkstadt plant goes prompt critical
