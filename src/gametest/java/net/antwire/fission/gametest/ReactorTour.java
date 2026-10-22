@@ -81,6 +81,7 @@ public class ReactorTour implements FabricClientGameTest {
 			if (scenes.equals("all") || scenes.contains("meltdown")) this.meltdown(context, sp);
 			if (scenes.contains("cloud")) this.cloud(context, sp);
 			if (scenes.equals("all") || scenes.contains("explosion")) this.explosions(context, sp);
+			if (scenes.equals("all") || scenes.contains("castor")) new CastorTour().run(context, sp, this.g);
 		}
 	}
 

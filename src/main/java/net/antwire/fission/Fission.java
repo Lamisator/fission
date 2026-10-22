@@ -47,6 +47,7 @@ public class Fission implements ModInitializer {
 		ModItems.init();
 		ModBlockEntities.init();
 		ModMenus.init();
+		net.antwire.fission.registry.ModCastor.init();
 		ReactorNetwork.register();
 		GridworksApi.DEVICE.registerForBlockEntity((be, side) -> be, ModBlockEntities.FEEDWATER_PUMP);
 		GridworksApi.DEVICE.registerForBlockEntity((be, side) -> be, ModBlockEntities.REPROCESSING);

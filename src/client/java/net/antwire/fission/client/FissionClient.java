@@ -29,5 +29,6 @@ public class FissionClient implements ClientModInitializer {
 		BlockEntityRendererRegistry.register(ModBlockEntities.ANNUNCIATOR, PanelRenderer::new);
 		BlockEntityRendererRegistry.register(ModBlockEntities.CORE_MAP, PanelRenderer::new);
 		BlockEntityRendererRegistry.register(ModBlockEntities.RADIATION_MONITOR, PanelRenderer::new);
+		CastorClient.init();
 	}
 }

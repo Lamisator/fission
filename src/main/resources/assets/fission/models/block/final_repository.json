@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "top": "fission:block/final_repository_top",
+    "side": "fission:block/final_repository_side",
+    "bottom": "fission:block/final_repository_side"
+  }
+}

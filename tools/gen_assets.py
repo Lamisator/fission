@@ -778,3 +778,6 @@ for name, dist in (("scram", 48), ("alarm", 24), ("rad_alarm", 16), ("relief_val
     sounds[name] = {"sounds": [{"name": f"fission:{name}", "attenuation_distance": dist}], "subtitle": f"subtitles.fission.{name}"}
 write(f"{A}/sounds.json", sounds)
 print("fission assets written")
+
+# the CASTOR transport chain has its own generator; it adds to the language file and tags written above
+subprocess.run(["python3", "tools/gen_castor.py"], check=True)

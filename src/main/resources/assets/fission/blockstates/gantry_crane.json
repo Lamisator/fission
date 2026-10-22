@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "fission:block/gantry_crane"
+    },
+    "facing=east": {
+      "model": "fission:block/gantry_crane",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "fission:block/gantry_crane",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "fission:block/gantry_crane",
+      "y": 270
+    }
+  }
+}
