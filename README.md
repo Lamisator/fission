@@ -514,6 +514,9 @@ above the centre column.
 
 ## Changes
 
+- **1.6.1**: AUTO's fuel temperature limit looks ahead: it holds the power at which the hottest channel would settle
+  at 1350 °C (from the power shape and the cooling), instead of scaling the present, lagging channel temperature. When
+  the power fell quickly (a burnt-out core) it used to hold back far more than needed for a few seconds.
 - **1.6.0**: a big core no longer burns out all at once. The Funkstadt plant's 1152 channels were loaded fresh
   together, burned down together and ran out of reactivity at about 75 % of their life; the few fresh assemblies the
   refuelling machine then put in among dead fuel carried 12 to 14 times the average power and two channels melted.

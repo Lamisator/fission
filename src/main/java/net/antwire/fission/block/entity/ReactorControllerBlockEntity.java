@@ -89,6 +89,8 @@ public class ReactorControllerBlockEntity extends BlockEntity {
 	public double hotTemp = 20;
 	/** Fuel temperature per fuel block: each heats with its own share of the power, so it lags behind the power shape. */
 	private double[] chanTemp = new double[0];
+	/** Heat carried from the fuel into the water per kelvin, W/K, at the last tick. */
+	private double heatTransfer;
 	/** AUTO is holding back for the hottest channel (logged once each time it starts). */
 	private boolean hotLimited;
 	public double voidFraction;
@@ -354,6 +356,7 @@ public class ReactorControllerBlockEntity extends BlockEntity {
 		double ueff = u * (0.03 + 0.97 * Math.min(1, this.water / cap));
 		// a dry core: only radiation and steam carry a little heat away
 		double q = wet ? ueff * (this.fuelTemp - this.waterTemp) : u * 0.005 * (this.fuelTemp - 100);
+		this.heatTransfer = wet ? ueff : u * 0.005;
 		// every fuel block heats with its own share of the power and cools like the core as a whole, so a channel's
 		// temperature follows its power with the same lag: when the rods drop and the shape swings over, it cools
 		double[] share = this.core != null ? this.core.share : new double[0];
@@ -430,11 +433,10 @@ public class ReactorControllerBlockEntity extends BlockEntity {
 	 */
 	private void regulate() {
 		double p = Math.max(1, this.thermalPower());
-		// the channel temperatures rise in proportion to the power: hold back so the hottest one stays at HOT_LIMIT
+		// the hottest channel settles as far above the water as its share of the power: no more than puts it at HOT_LIMIT
 		double target = this.setpoint;
-		double rise = this.hotTemp - this.waterTemp;
-		if (rise > 1) {
-			target = Math.min(target, p * (HOT_LIMIT - this.waterTemp) / rise);
+		if (this.core != null && this.heatTransfer > 0) {
+			target = Math.min(target, Math.max(1, (HOT_LIMIT - this.waterTemp) * this.heatTransfer / Math.max(1, this.core.peaking)));
 		}
 		boolean limited = target < this.setpoint * 0.98;
 		if (limited && !this.hotLimited) {
