@@ -37,6 +37,10 @@ import org.jspecify.annotations.Nullable;
 public class FuelChannelBlockEntity extends BlockEntity implements NuclearContainer, Clearable {
 	/** Real seconds the refuelling machine takes to lower a fresh assembly into a running core. */
 	public static final double REFUEL_SECONDS = 180;
+	/** The earliest discharge burnup (fraction of life) of a channel in a running core; see {@link #dischargeAt}. */
+	public static final double DISCHARGE_FROM = 0.4;
+	/** The latest discharge burnup in a running core. */
+	public static final double DISCHARGE_TO = 0.7;
 	private ItemStack rod = ItemStack.EMPTY;
 	/** The spent assembly taken out by the refuelling machine, waiting for the transfer tube. */
 	private ItemStack outgoing = ItemStack.EMPTY;
@@ -158,10 +162,34 @@ public class FuelChannelBlockEntity extends BlockEntity implements NuclearContai
 		}
 	}
 
+	/**
+	 * Burnup (fraction of the assembly's life) at which the refuelling machine exchanges the assembly in a running core.
+	 * Spread between {@link #DISCHARGE_FROM} and {@link #DISCHARGE_TO} by position, so a core loaded all at once does not burn out all at
+	 * once: after the first round the channels are at every stage of their life and fresh assemblies always go in among
+	 * fuel that still has some reactivity left.
+	 */
+	public static double dischargeAt(BlockPos pos) {
+		long h = pos.asLong() * 0x9E3779B97F4A7C15L;
+		h ^= h >>> 29;
+		h *= 0xBF58476D1CE4E5B9L;
+		h ^= h >>> 32;
+		return DISCHARGE_FROM + (DISCHARGE_TO - DISCHARGE_FROM) * ((h >>> 11) / (double) (1L << 53));
+	}
+
+	/** The assembly in this channel is due for exchange: spent, or in a running core past this channel's discharge burnup. */
+	private boolean due() {
+		if (this.rod.isEmpty() || FuelRodItem.spent(this.rod)) {
+			return true;
+		}
+		return this.level != null && this.level.getGameTime() - this.inReactor < 200
+				&& FuelRodItem.data(this.rod).fraction() >= dischargeAt(this.worldPosition);
+	}
+
 	@Override
 	public boolean acceptsFromTube(ItemStack stack) {
-		boolean room = this.rod.isEmpty() || this.outgoing.isEmpty() && this.blend >= 1 && FuelRodItem.spent(this.rod);
-		return room && stack.getItem() instanceof FuelRodItem && !FuelRodItem.spent(stack);
+		boolean room = this.rod.isEmpty() || this.outgoing.isEmpty() && this.blend >= 1 && this.due();
+		// only fresh assemblies go in: irradiated ones on their way to the pool or reprocessing never come back
+		return room && stack.getItem() instanceof FuelRodItem && !FuelRodItem.irradiated(stack);
 	}
 
 	@Override

@@ -400,7 +400,7 @@ public class ReactorTour implements FabricClientGameTest {
 		this.onReactor(sp, controller, r -> {
 			r.rps = false;
 			r.water = 0;
-			r.fuelTemp = 800;
+			r.setFuelTemp(800);
 			r.rods = 0.3;
 			r.setRodTarget(0.3);
 			r.primePower(24e6);

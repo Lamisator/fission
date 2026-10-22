@@ -58,6 +58,8 @@ public class ReactorControllerBlockEntity extends BlockEntity {
 	private static final double XE_EQ_FULL = (0.064 + 0.0025) / (4 * LAMBDA_XE);
 	private static final double XENON_WORTH = 0.028;
 	public static final double MELT_TEMP = 2800;
+	/** AUTO keeps the hottest channel below this: with a peaked power shape it holds less power than the setpoint. */
+	public static final double HOT_LIMIT = 1350;
 
 	public @Nullable CoreModel core;
 	private long nextScan;
@@ -85,6 +87,10 @@ public class ReactorControllerBlockEntity extends BlockEntity {
 	public double ventRate;
 	public double xenonWorth;
 	public double hotTemp = 20;
+	/** Fuel temperature per fuel block: each heats with its own share of the power, so it lags behind the power shape. */
+	private double[] chanTemp = new double[0];
+	/** AUTO is holding back for the hottest channel (logged once each time it starts). */
+	private boolean hotLimited;
 	public double voidFraction;
 	private final double[] decay = new double[3];
 	private double iodine;
@@ -283,7 +289,6 @@ public class ReactorControllerBlockEntity extends BlockEntity {
 		this.xenon += (0.0025 * phi + LAMBDA_I * this.iodine - LAMBDA_XE * this.xenon - 3 * LAMBDA_XE * phi * this.xenon) * g;
 		this.xenon = Math.max(0, this.xenon);
 		this.thermal(level, n, cap);
-		this.hotTemp = this.waterTemp + (this.fuelTemp - this.waterTemp) * Math.max(1, core.peaking);
 		// accidents
 		if (this.pressure > 150) {
 			ReactorExplosion.explode(level, this, 0.5, "pressure vessel rupture");
@@ -345,14 +350,29 @@ public class ReactorControllerBlockEntity extends BlockEntity {
 		double heatCapacity = 6 * u;
 		double tsat = 100 * Math.pow(Math.max(1, this.pressure), 0.25);
 		double pth = this.thermalPower();
-		double q;
-		if (this.water > 1) {
-			double ueff = u * (0.03 + 0.97 * Math.min(1, this.water / cap));
-			q = ueff * (this.fuelTemp - this.waterTemp);
-		} else {
-			// dry core: only radiation and steam carry a little heat away
-			q = u * 0.005 * (this.fuelTemp - 100);
+		boolean wet = this.water > 1;
+		double ueff = u * (0.03 + 0.97 * Math.min(1, this.water / cap));
+		// a dry core: only radiation and steam carry a little heat away
+		double q = wet ? ueff * (this.fuelTemp - this.waterTemp) : u * 0.005 * (this.fuelTemp - 100);
+		// every fuel block heats with its own share of the power and cools like the core as a whole, so a channel's
+		// temperature follows its power with the same lag: when the rods drop and the shape swings over, it cools
+		double[] share = this.core != null ? this.core.share : new double[0];
+		boolean shaped = share.length == n && this.core.ready();
+		if (this.chanTemp.length != n) {
+			this.chanTemp = new double[n];
+			for (int i = 0; i < n; i++) {
+				this.chanTemp[i] = shaped ? this.waterTemp + (this.fuelTemp - this.waterTemp) * share[i] * n : this.fuelTemp;
+			}
 		}
+		double hot = 20;
+		for (int i = 0; i < n; i++) {
+			double t = this.chanTemp[i];
+			double qi = wet ? ueff * (t - this.waterTemp) : u * 0.005 * (t - 100);
+			t = Math.max(20, t + (pth * (shaped ? share[i] * n : 1) - qi) / heatCapacity * DT);
+			this.chanTemp[i] = t;
+			hot = Math.max(hot, t);
+		}
+		this.hotTemp = n > 0 ? hot : this.fuelTemp;
 		this.fuelTemp = Math.max(20, this.fuelTemp + (pth - q) / heatCapacity * DT);
 		double gen = 0;
 		if (this.water > 1) {
@@ -410,11 +430,34 @@ public class ReactorControllerBlockEntity extends BlockEntity {
 	 */
 	private void regulate() {
 		double p = Math.max(1, this.thermalPower());
-		double err = Math.log(p / Math.max(1, this.setpoint));
+		// the channel temperatures rise in proportion to the power: hold back so the hottest one stays at HOT_LIMIT
+		double target = this.setpoint;
+		double rise = this.hotTemp - this.waterTemp;
+		if (rise > 1) {
+			target = Math.min(target, p * (HOT_LIMIT - this.waterTemp) / rise);
+		}
+		boolean limited = target < this.setpoint * 0.98;
+		if (limited && !this.hotLimited) {
+			Fission.LOGGER.info("Reactor at {}: AUTO holds {} MW instead of {} MW, the hottest channel is at the {} °C limit (peaking {})",
+					this.worldPosition.toShortString(), Math.round(target / 1e6), Math.round(this.setpoint / 1e6), Math.round(HOT_LIMIT),
+					this.core == null ? "?" : String.format(java.util.Locale.ROOT, "%.1f", this.core.peaking));
+		}
+		if (limited) {
+			this.hotLimited = true;
+		} else if (target >= this.setpoint) {
+			this.hotLimited = false;
+		}
+		double err = Math.log(p / Math.max(1, target));
 		double want = Math.clamp(-0.0015 * err / 0.2, -0.003, 0.0018);
 		double worth = this.core == null ? 0.2 : Math.max(0.05, this.core.rodWorth);
 		double move = Math.clamp(-(want - this.rho) / worth, -0.02, 0.02);
 		this.rodTarget = Math.clamp(this.rods + move, 0, 1);
+	}
+
+	/** Test and debug hook: the average fuel temperature, with every channel set as far above the water as its share of the power. */
+	public void setFuelTemp(double t) {
+		this.fuelTemp = t;
+		this.chanTemp = new double[0];
 	}
 
 	/** Test and debug hook: put the chain reaction straight at this many watts (precursors in equilibrium). */
@@ -433,7 +476,7 @@ public class ReactorControllerBlockEntity extends BlockEntity {
 		if (!this.rps) a |= Alarm.RPS_BYPASSED.bit();
 		if (this.power > nominal) a |= Alarm.HIGH_POWER.bit();
 		if (this.period > 0 && this.period < 30 && this.power > 0.0005 * nominal) a |= Alarm.SHORT_PERIOD.bit();
-		if (this.hotTemp > 1200) a |= Alarm.HIGH_FUEL_TEMP.bit();
+		if (this.hotTemp > 1400) a |= Alarm.HIGH_FUEL_TEMP.bit();
 		if (this.water < 0.7 * this.capacity()) a |= Alarm.LOW_WATER.bit();
 		if (this.pressure > 80) a |= Alarm.HIGH_PRESSURE.bit();
 		if (this.ventRate > 0) a |= Alarm.RELIEF_OPEN.bit();
@@ -536,8 +579,7 @@ public class ReactorControllerBlockEntity extends BlockEntity {
 		int n = core.fuel.size();
 		int melted = 0;
 		for (int i = 0; i < n && melted < 2; i++) {
-			double t = this.waterTemp + (this.fuelTemp - this.waterTemp) * core.share[i] * n;
-			if (t > MELT_TEMP) {
+			if (i < this.chanTemp.length && this.chanTemp[i] > MELT_TEMP) {
 				BlockPos p = core.fuel.get(i);
 				double dose = 0;
 				if (level.getBlockEntity(p) instanceof FuelChannelBlockEntity ch && !ch.rod().isEmpty()) {
@@ -636,6 +678,11 @@ public class ReactorControllerBlockEntity extends BlockEntity {
 		for (int i = 0; i < 3; i++) {
 			this.decay[i] = input.getDoubleOr("decay" + i, 0);
 		}
+		// the boiling sets the void in the channels: without it a running graphite core would come back after a restart
+		// with water where the steam was, less reactive, and AUTO would pull the rods just before the void returned.
+		// Saves from before 1.6.0 lack it: a core with its water at saturation boils off what the fuel puts in.
+		double tsat = 100 * Math.pow(Math.max(1, this.pressure), 0.25);
+		this.steamRate = input.getDoubleOr("steam_rate", this.water > 1 && this.waterTemp >= tsat - 1 ? this.thermalPower() / LATENT_HEAT : 0);
 		this.destroyed = input.getBooleanOr("destroyed", false);
 		this.meltedChannels = input.getIntOr("melted", 0);
 		this.alarms = input.getIntOr("alarms", 0);
@@ -671,6 +718,7 @@ public class ReactorControllerBlockEntity extends BlockEntity {
 		for (int i = 0; i < 3; i++) {
 			output.putDouble("decay" + i, this.decay[i]);
 		}
+		output.putDouble("steam_rate", this.steamRate);
 		output.putBoolean("destroyed", this.destroyed);
 		output.putInt("melted", this.meltedChannels);
 		output.putInt("alarms", this.alarms);

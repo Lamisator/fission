@@ -105,7 +105,8 @@ public final class StorageBlockEntities {
 			for (int i = 0; i < this.items.size(); i++) {
 				ItemStack st = this.items.get(i);
 				FuelData d = st.get(ModComponents.FUEL);
-				if (d != null && d.spent() && now - d.time() >= COOLING_TICKS) {
+				// discharged early from a running core counts too (see FuelChannelBlockEntity.dischargeAt)
+				if (d != null && d.fraction() >= FuelChannelBlockEntity.DISCHARGE_FROM && now - d.time() >= COOLING_TICKS) {
 					if (Tubes.push(level, this.worldPosition, st, TubeKind.FUEL)) {
 						st.shrink(1);
 						this.setChanged();

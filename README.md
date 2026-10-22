@@ -145,6 +145,9 @@ then on each piece.
   - **Rods**: drag the slider, or IN/OUT in 1 % and 5 % steps. The drives move 0.5 %/s.
   - **AUTO**: holds the power setpoint with the rods, never faster than about a 33 s period. It steers
     by the rods' real worth where they are, which in a burnt-up core is far higher near the top of the stroke.
+    AUTO also keeps the hottest fuel channel under 1350 °C: when fresh assemblies among burnt-up ones peak the
+    power shape, it holds less power than the setpoint (the server log says so once) instead of running into the
+    1500 °C SCRAM.
   - **Setpoint**: click the setpoint display and type any value in MW (decimal point or comma), Enter sets it, Esc
     cancels; or ÷2 / ×2. From 100 W to 120 % of nominal. A setpoint chosen while AUTO is off is where AUTO goes
     when you switch it on; otherwise switching AUTO on holds the present power.
@@ -175,7 +178,7 @@ The controller also takes a redstone signal (SCRAM) and gives a comparator signa
 | RPS BYPASSED | Protection system off |
 | HIGH POWER | Over 100 % |
 | SHORT PERIOD | Period under 30 s |
-| FUEL TEMP | Hottest fuel over 1200 °C |
+| FUEL TEMP | Hottest fuel over 1400 °C |
 | LOW LEVEL | Water under 70 % |
 | HIGH PRESS | Over 80 bar |
 | RELIEF OPEN | Relief valves blowing |
@@ -223,9 +226,9 @@ Radiation 1.5.0: three blocks of concrete leave 0.1 %).
 
 | Block | |
 |---|---|
-| **Fuel Rack** | Fresh fuel. Sends it down fuel transfer tubes to empty fuel channels (and to spent ones in a running core). A rack that finds no taker tries again after 30 seconds, so a store of hundreds of racks costs little. |
-| **Fuel Transfer Tube** | Moves fuel assemblies. On-load refuelling: in a running core a spent assembly stays in its channel until a fresh one arrives by tube, which takes its place over three minutes (the refuelling machine lowers it in), so the reactivity rises a few pcm a second instead of jumping; the spent one leaves by tube. Outside a reactor spent assemblies leave on their own. A column of stacked fuel channels is one pressure tube: assemblies travel up and down through it, so one tube on top of each column reaches every channel in it. |
-| **Holding Basin** | A pool for short-lived isotopes and spent fuel; the water lets through only 0.02 %. Canisters that have decayed become harmless empty canisters. Spent fuel that has cooled for a day goes on by tube to reprocessing (if nothing takes it, the basin tries again after 30 seconds). |
+| **Fuel Rack** | Fresh fuel. Sends it down fuel transfer tubes to empty fuel channels (and in a running core to channels whose assembly is due for exchange, see below). A rack that finds no taker tries again after 30 seconds, so a store of hundreds of racks costs little. |
+| **Fuel Transfer Tube** | Moves fuel assemblies. On-load refuelling: in a running core every channel exchanges its assembly at its own burnup, somewhere between 40 and 70 % of the assembly's life (spent ones always), so a core loaded all at once does not burn out all at once and fresh fuel always goes in among fuel that still has reactivity left. The old assembly stays in its channel until a fresh one arrives by tube, which takes its place over three minutes (the refuelling machine lowers it in), so the reactivity rises a few pcm a second instead of jumping; the spent one leaves by tube. Outside a reactor spent assemblies leave on their own. A column of stacked fuel channels is one pressure tube: assemblies travel up and down through it, so one tube on top of each column reaches every channel in it. |
+| **Holding Basin** | A pool for short-lived isotopes and spent fuel; the water lets through only 0.02 %. Canisters that have decayed become harmless empty canisters. Spent or discharged fuel (40 % burnup or more) that has cooled for a day goes on by tube to reprocessing (if nothing takes it, the basin tries again after 30 seconds). |
 | **Reprocessing Plant** | 230 V, 3 kW, heavily shielded (5 % gets out). Dissolves a cooled spent assembly into one canister per isotope, with as much as the rod really holds, plus plutonium and depleted uranium. Sends them out by isotope pipe. |
 | **Isotope Pipe** | Moves canisters, plutonium, depleted uranium and debris. Each item goes to the nearest block that takes it. |
 | **Long-Term Storage Drum** | For long-lived isotopes, plutonium and debris. It holds back about 97 % of the radiation, not all of it. Put drums behind concrete. |
@@ -511,6 +514,18 @@ above the centre column.
 
 ## Changes
 
+- **1.6.0**: a big core no longer burns out all at once. The Funkstadt plant's 1152 channels were loaded fresh
+  together, burned down together and ran out of reactivity at about 75 % of their life; the few fresh assemblies the
+  refuelling machine then put in among dead fuel carried 12 to 14 times the average power and two channels melted.
+  Now each channel in a running core exchanges its assembly at its own burnup between 40 and 70 % of its life (set by
+  its position), which keeps the power peaking near 2.2 in the long run (a fresh core: 1.8). Channels take only fresh
+  assemblies by tube; holding basins send discharged assemblies on to reprocessing like spent ones. Every fuel block
+  now has its own temperature that follows its own power with the fuel's lag: before, it was the core's average times
+  the present power shape, so the rods dropping in a SCRAM (which swings the shape over to the fresh fuel) could melt
+  channels while the power was falling. AUTO holds the hottest channel under 1350 °C; the FUEL TEMP alarm comes at
+  1400 °C (was 1200 °C), the SCRAM stays at 1500 °C. Fix: a running graphite core no longer trips (or worse) after a
+  server restart. The boil-off was not saved, so the channels came back full of water, the core less reactive and
+  AUTO pulled the rods out just before the steam void returned; the Funkstadt core went to 118-1600 % in tests.
 - **1.5.1**: fix: fission products lying around (for example the pieces of an exploded core) kicked every player who
   came near them ("Failed to decode packet set_entity_data"). Their fire and blast resistance named a damage type tag
   that clients cannot resolve; it is now sent as a plain list, and items from 1.5.0 are repaired when they load.
