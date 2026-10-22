@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "fission:block/final_repository"
+    },
+    "facing=east": {
+      "model": "fission:block/final_repository"
+    },
+    "facing=south": {
+      "model": "fission:block/final_repository"
+    },
+    "facing=west": {
+      "model": "fission:block/final_repository"
+    }
+  }
+}

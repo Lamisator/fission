@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "G": "minecraft:glass_pane",
+    "P": "minecraft:piston",
+    "B": "minecraft:iron_block",
+    "M": "minecraft:furnace_minecart"
+  },
+  "pattern": [
+    "IGI",
+    "PBP",
+    " M "
+  ],
+  "result": {
+    "id": "fission:shunting_locomotive"
+  }
+}

@@ -31,6 +31,9 @@
     "fission:fuel_fragment",
     "fission:uranium_ore",
     "fission:deepslate_uranium_ore",
-    "fission:solid_corium"
+    "fission:solid_corium",
+    "fission:station_rail",
+    "fission:gantry_crane",
+    "fission:final_repository"
   ]
 }

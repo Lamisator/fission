@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "B": "minecraft:iron_block",
+    "H": "radiation:heavy_concrete",
+    "D": "fission:storage_drum",
+    "M": "minecraft:minecart"
+  },
+  "pattern": [
+    "BHB",
+    "HDH",
+    "BMB"
+  ],
+  "result": {
+    "id": "fission:castor_wagon"
+  }
+}

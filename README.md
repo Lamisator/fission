@@ -17,11 +17,11 @@ Source code: [github.com/Lamisator/fission](https://github.com/Lamisator/fission
 
 ## Installing
 
-Fission needs **Fabric API**, **Gridworks 1.1.2** or newer and **Radiation 1.5.0** or newer.
+Fission needs **Fabric API**, **Gridworks 1.1.2** or newer and **Radiation 1.10.0** or newer.
 
 1. In Prism Launcher, make a Minecraft **26.3** instance with **Fabric** (loader 0.19.5 or newer).
 2. **Edit → Mods → Download mods**: install **Fabric API**.
-3. **Add file**: `gridworks-1.1.2.jar`, `radiation-1.5.0.jar` and `fission-1.4.1.jar`.
+3. **Add file**: `gridworks-1.1.2.jar`, `radiation-1.10.0.jar` and `fission-1.5.0.jar`.
 
 For a server, put the same jars into its `mods` folder. Every player needs them too.
 
@@ -255,6 +255,33 @@ Decontamination Sprayer. In a test, a canister of 1 PBq caesium-137 gave 46 rad/
 chest alike; after a minute the patch under each held 0.2 rad/s. Containers are found within a few seconds of being
 loaded or filled; Fission's and Radiation's own blocks and carts count as proper storage.
 
+## CASTOR transport
+
+What goes to permanent storage leaves the plant in a **CASTOR**, a forged cast-iron transport and storage cask with
+cooling fins and a bolted double lid, on a flatcar. A **shunting locomotive** pulls it along ordinary rails to a
+**gantry crane** that lifts the waste out, piece by piece, into **final repository cells**. Another crane at the plant
+loads it.
+
+| Item / block | |
+|---|---|
+| **CASTOR Wagon** | Place it on rails like a minecart. It holds 18 pieces of what goes to permanent storage: long-lived isotope canisters, plutonium, depleted uranium, corium and fuel fragments, graphite debris, and spent fuel that has cooled in a holding basin for at least a day. Short-lived canisters stay in the basin. The cask lets out a millionth of what is inside (a cask of freshly cooled assemblies: a few hundredths of a rad/s at one metre). Break the wagon and everything inside spills out. |
+| **Shunting Locomotive** | A small diesel shunter. Use it to start it: it drives away from you along the rail (sneak to drive towards you). Use it again to stop. When it starts it couples every cart standing against it, and every cart against those, at either end, up to 16; they keep 1.3 blocks apart whether it pulls or pushes. It speeds up gently to 4 m/s and brakes before stopping. |
+| **Station Rail** | A straight rail where a running shunter stops (within about a block). It goes on when the gantry crane over its wagons is done, when the rail is powered (lever, button, a detector rail...), or, with no crane at work, when the waiting time is up: 5, 15, 30 (default), 60 or 120 s; use the rail with an empty hand to change it. Power spreads along a row of station rails like along powered rails. A shunter started on a station rail leaves it. |
+| **Gantry Crane** | The control cab of a crane that spans **9 blocks ahead** of it (the way you face when you place it) and **7 to the right**. Its gantry runs on two crane rails along the span, the trolley across the bridge, the hook 7 blocks up. 230 V from Gridworks; 3 kW while it moves, 100 W standing. Use the cab to switch between **UNLOAD** (CASTOR into storage), **LOAD** (storage into the CASTOR) and **OFF**; sneak-use for its status. It works on its own whenever a CASTOR stands still under it: it unloads into final repository cells first, then storage drums, then holding basins (spent fuel), and loads from basins, drums and repository cells in its span (blocks on the ground and up to two below it, so cells can be sunk into the floor). A lift takes 5 to 15 seconds: the hook travels 1.3 blocks a second and lowers at 2. Each piece hangs in a shielded transfer flask (a ten-thousandth gets out). |
+| **Final Repository Cell** | A disposal cell: the waste in a copper canister, packed in bentonite clay, deep in rock. It takes everything a CASTOR takes (cooled spent fuel too: direct disposal) and lets out a millionth. Isotope pipes deliver to it as well. Counts as heavy shielding. |
+
+**A siding.** Lay a straight track through the crane's span, a block or more in from its sides, with a station rail at
+about the middle of the span (the shunter stops on it; the wagons behind it then stand under the crane). Put the storage
+blocks within the span beside the track. Bring 230 V to the cab. At the plant, set the crane to LOAD and put a
+holding basin (with spent fuel that has cooled) and storage drums under it; at the repository, set it to UNLOAD and
+sink final repository cells into the floor under the span. A train started at the plant stops at the plant's station,
+waits while the crane fills the CASTOR, drives on to the repository's station, waits while that crane empties it, and
+drives on to the end of the track.
+
+| Loading at the plant | Unloading at the repository |
+|---|---|
+| ![](docs/img/castor_loading.png) | ![](docs/img/castor_unloading.png) |
+
 ## Accidents
 
 ### Meltdown
@@ -484,6 +511,11 @@ above the centre column.
 
 ## Changes
 
+- **1.5.0**: CASTOR transport. CASTOR wagons, a shunting locomotive that couples the wagons against it, station rails,
+  gantry cranes that load and unload CASTORs, and final repository cells (see [CASTOR transport](#castor-transport)).
+  Fission products (spent fuel, active canisters, plutonium, core debris) can no longer be destroyed by fire, lava,
+  cacti or explosions and never despawn; lying around or kept in containers not made for them they radiate freely and
+  contaminate the ground under them (needs Radiation 1.10.0).
 - **1.4.1**: less server time after an accident. Corium looks for water to boil only where the chunk section can hold
   any (hundreds of corium blocks in a dry hall used to read 100 blocks each every half second); when a fuel rack's push
   searches a whole tube network without finding a taker, the other racks on that network skip the same search for 5 s.
@@ -528,7 +560,7 @@ above the centre column.
 ## Building from source
 
 ```
-./gradlew build                                # build/libs/fission-1.4.1.jar
+./gradlew build                                # build/libs/fission-1.5.0.jar
 ./gradlew runClientGameTest [-Pscenes=plant]   # the screenshot tour (plant, fuel, meltdown, explosion, cloud)
 ./gradlew runClientGameTest -Pmap=<unpacked DARC_Funkstadt> -PmapMods=<hamradio.jar,redbutton.jar>
                                                # the Funkstadt plant goes prompt critical

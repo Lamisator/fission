@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "B": "minecraft:clay",
+    "H": "radiation:heavy_concrete",
+    "C": "minecraft:copper_block"
+  },
+  "pattern": [
+    "BHB",
+    "HCH",
+    "BHB"
+  ],
+  "result": {
+    "id": "fission:final_repository"
+  }
+}
