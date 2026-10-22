@@ -237,6 +237,24 @@ drums. Tooltips show each canister's isotope, half-life, activity and dose rate.
 |---|---|---|---|
 | ![](docs/img/fuel_cycle.png) | ![](docs/img/gui_reprocessing_plant.png) | ![](docs/img/gui_holding_basin.png) | ![](docs/img/gui_storage_drum.png) |
 
+### Fission products belong in storage
+
+![A spent assembly floating on lava, another in a fire, plutonium on a cactus: none of them burns](docs/img/loose_products.png)
+
+Since 1.5.0, **fission products cannot be got rid of.** Spent (or partly burnt) fuel assemblies, isotope canisters that
+have not decayed yet, plutonium, corium and fuel fragments and graphite debris do not burn in fire or lava, are not
+hurt by cacti, explosions or lightning and **never despawn**: they float on lava until someone fishes them out. They
+have to go where they belong - a holding basin, a long-term storage drum or a CASTOR.
+
+Anywhere else they are a hazard. **Lying on the ground**, or kept in a chest, a barrel, a furnace, a hopper, a chest
+minecart or any other container not made for them, they radiate freely (with their full dose rate at one metre, shielded
+only by what stands in between), and they **seep into the ground under them**: the 4x4 patch there becomes contaminated
+(Radiation 1.10's contaminated ground, in the water if it lies in water), growing by 0.002 % of their dose rate per
+second up to 0.5 % of it, and it **stays contaminated after they are gone** until it is washed off with Radiation's
+Decontamination Sprayer. In a test, a canister of 1 PBq caesium-137 gave 46 rad/s two metres away on the grass and in a
+chest alike; after a minute the patch under each held 0.2 rad/s. Containers are found within a few seconds of being
+loaded or filled; Fission's and Radiation's own blocks and carts count as proper storage.
+
 ## Accidents
 
 ### Meltdown

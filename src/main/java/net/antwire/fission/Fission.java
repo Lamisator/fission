@@ -56,6 +56,7 @@ public class Fission implements ModInitializer {
 		ServerTickEvents.END_SERVER_TICK.register(Fission::tick);
 		ServerTickEvents.END_SERVER_TICK.register(ReactorFires::tick);
 		ServerLifecycleEvents.SERVER_STARTED.register(ReactorFires::load);
+		net.antwire.fission.world.LooseFission.register();
 		ServerLifecycleEvents.SERVER_STOPPING.register(server -> ReactorFires.unload());
 		ServerLifecycleEvents.AFTER_SAVE.register((server, flush, force) -> ReactorFires.save());
 		CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> FissionCommands.register(dispatcher));
