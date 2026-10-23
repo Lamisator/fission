@@ -483,7 +483,9 @@ public class ReactorControllerBlockEntity extends BlockEntity {
 		if (this.pressure > 80) a |= Alarm.HIGH_PRESSURE.bit();
 		if (this.ventRate > 0) a |= Alarm.RELIEF_OPEN.bit();
 		if (this.steamRate > 0.05 && this.feedRate < this.steamRate * 0.5 && this.water < this.capacity() * 0.95) a |= Alarm.FEEDWATER_LOW.bit();
-		if (this.xenonWorth > 0.005) a |= Alarm.XENON.bit();
+		// xenon above its equilibrium at the present power (after a power drop), while the core is still making power
+		double phi = Math.max(0, this.power / nominal);
+		if (phi > 0.05 && this.xenonWorth > XENON_WORTH * 4 * phi / (1 + 3 * phi) + 0.005) a |= Alarm.XENON.bit();
 		if (this.rho > BETA * 0.5) a |= Alarm.HIGH_REACTIVITY.bit();
 		if (this.meltedChannels > 0) a |= Alarm.CORE_DAMAGE.bit();
 		return a;

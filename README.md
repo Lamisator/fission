@@ -183,7 +183,7 @@ The controller also takes a redstone signal (SCRAM) and gives a comparator signa
 | HIGH PRESS | Over 80 bar |
 | RELIEF OPEN | Relief valves blowing |
 | FEED LOW | Feedwater well below the steam flow |
-| XENON | Xenon worth over 500 pcm |
+| XENON | Xenon worth 500 pcm over its equilibrium at the present power, while the core makes power (it builds up after the power drops) |
 | HIGH REACT | Reactivity over half of β |
 | CORE DAMAGE | Fuel has melted |
 
@@ -514,6 +514,10 @@ above the centre column.
 
 ## Changes
 
+- **1.6.2**: the XENON alarm no longer stays lit all the time at power. Equilibrium xenon at full power is worth about
+  2800 pcm, so a fixed 500 pcm threshold lit it in normal running; it now comes on when xenon is 500 pcm above its
+  equilibrium at the present power (after the power drops), and not in a core that has run out of fuel. A big plant
+  left to itself now runs with a dark annunciator panel until its stored fuel is used up, then coasts down.
 - **1.6.1**: AUTO's fuel temperature limit looks ahead: it holds the power at which the hottest channel would settle
   at 1350 °C (from the power shape and the cooling), instead of scaling the present, lagging channel temperature. When
   the power fell quickly (a burnt-out core) it used to hold back far more than needed for a few seconds.
