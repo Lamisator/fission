@@ -13,6 +13,10 @@ public final class ModMenus {
 			new MenuType<>(StorageMenu::oneRow, FeatureFlags.VANILLA_SET));
 	public static final MenuType<StorageMenu> STORAGE_2 = Registry.register(BuiltInRegistries.MENU, Fission.id("storage_2"),
 			new MenuType<>(StorageMenu::twoRows, FeatureFlags.VANILLA_SET));
+	public static final MenuType<StorageMenu> STORAGE_6 = Registry.register(BuiltInRegistries.MENU, Fission.id("storage_6"),
+			new MenuType<>(StorageMenu::sixRows, FeatureFlags.VANILLA_SET));
+	public static final MenuType<StorageMenu> RTG = Registry.register(BuiltInRegistries.MENU, Fission.id("rtg"),
+			new MenuType<>(StorageMenu::rtg, FeatureFlags.VANILLA_SET));
 	public static final MenuType<MachineMenu> REPROCESSING = Registry.register(BuiltInRegistries.MENU, Fission.id("reprocessing"),
 			new MenuType<>(MachineMenu::reprocessing, FeatureFlags.VANILLA_SET));
 	public static final MenuType<MachineMenu> CENTRIFUGE = Registry.register(BuiltInRegistries.MENU, Fission.id("centrifuge"),

@@ -5,6 +5,6 @@
 	"name": "Fission screenshot tests",
 	"environment": "*",
 	"entrypoints": {
-		"fabric-client-gametest": ["net.antwire.fission.gametest.ReactorTour", "net.antwire.fission.gametest.LooseTour"]
+		"fabric-client-gametest": ["net.antwire.fission.gametest.ReactorTour", "net.antwire.fission.gametest.LooseTour", "net.antwire.fission.gametest.RtgTour"]
 	}
 }

@@ -3,6 +3,7 @@ package net.antwire.fission.registry;
 import net.antwire.fission.Fission;
 import net.antwire.fission.item.CanisterItem;
 import net.antwire.fission.item.FuelRodItem;
+import net.antwire.fission.item.HeatSourceItem;
 import net.antwire.fission.item.LinkerItem;
 import net.antwire.fission.nuclear.FuelData;
 import net.antwire.fission.nuclear.FuelType;
@@ -38,6 +39,7 @@ public final class ModItems {
 	public static final Item NATURAL_FUEL_ROD = rod("natural_fuel_rod", FuelType.NATURAL);
 	public static final Item LEU_FUEL_ROD = rod("leu_fuel_rod", FuelType.LEU);
 	public static final Item MOX_FUEL_ROD = rod("mox_fuel_rod", FuelType.MOX);
+	public static final Item PU238_HEAT_SOURCE = item("pu238_heat_source", HeatSourceItem::new, new Item.Properties().stacksTo(1).rarity(Rarity.RARE), true);
 	public static final Item ISOTOPE_CANISTER = item("isotope_canister", CanisterItem::new, new Item.Properties().stacksTo(1), false);
 	public static final Item DECAYED_CANISTER = item("decayed_canister", Item::new, new Item.Properties().stacksTo(16), true);
 	public static final Item CORIUM_FRAGMENT = item("corium_fragment", Item::new, new Item.Properties().rarity(Rarity.EPIC), true);

@@ -29,6 +29,8 @@ public final class Dose {
 			each = 4;
 		} else if (stack.is(ModItems.FUEL_FRAGMENT)) {
 			each = 40;
+		} else if (stack.is(ModItems.PU238_HEAT_SOURCE)) {
+			each = 0.005;
 		} else if (stack.is(ModItems.PLUTONIUM)) {
 			each = 0.02;
 		}

@@ -24,6 +24,8 @@ public class FissionClient implements ClientModInitializer {
 		ClientPlayNetworking.registerGlobalReceiver(ReactorNetwork.Status.TYPE, (payload, context) -> ReactorScreen.receive(payload));
 		MenuScreens.register(ModMenus.STORAGE_1, StorageScreen::new);
 		MenuScreens.register(ModMenus.STORAGE_2, StorageScreen::new);
+		MenuScreens.register(ModMenus.STORAGE_6, StorageScreen::new);
+		MenuScreens.register(ModMenus.RTG, StorageScreen::new);
 		MenuScreens.register(ModMenus.REPROCESSING, MachineScreen::new);
 		MenuScreens.register(ModMenus.CENTRIFUGE, MachineScreen::new);
 		BlockEntityRendererRegistry.register(ModBlockEntities.ANNUNCIATOR, PanelRenderer::new);

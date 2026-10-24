@@ -4,6 +4,7 @@
     "fission:uranium_ore",
     "fission:deepslate_uranium_ore",
     "fission:reactor_vessel",
-    "fission:final_repository"
+    "fission:final_repository",
+    "fission:rtg"
   ]
 }

@@ -7,6 +7,7 @@ import net.antwire.fission.block.entity.LinkedBlockEntity;
 import net.antwire.fission.block.entity.Machines;
 import net.antwire.fission.block.entity.RadiationMonitorBlockEntity;
 import net.antwire.fission.block.entity.ReactorControllerBlockEntity;
+import net.antwire.fission.block.entity.RtgBlockEntity;
 import net.antwire.fission.block.entity.SteamTurbineBlockEntity;
 import net.antwire.fission.block.entity.StorageBlockEntities;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
@@ -31,6 +32,7 @@ public final class ModBlockEntities {
 			ModBlocks.STORAGE_DRUM);
 	public static final BlockEntityType<Machines.Reprocessing> REPROCESSING = reg("reprocessing_plant", Machines.Reprocessing::new, ModBlocks.REPROCESSING_PLANT);
 	public static final BlockEntityType<Machines.Centrifuge> CENTRIFUGE = reg("gas_centrifuge", Machines.Centrifuge::new, ModBlocks.GAS_CENTRIFUGE);
+	public static final BlockEntityType<RtgBlockEntity> RTG = reg("rtg", RtgBlockEntity::new, ModBlocks.RTG);
 	public static final BlockEntityType<RadiationMonitorBlockEntity> RADIATION_MONITOR = reg("radiation_monitor", RadiationMonitorBlockEntity::new,
 			ModBlocks.RADIATION_MONITOR);
 	public static final BlockEntityType<LinkedBlockEntity> CONSOLE = linked("reactor_console", ModBlocks.REACTOR_CONSOLE);

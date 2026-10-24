@@ -781,3 +781,4 @@ print("fission assets written")
 
 # the CASTOR transport chain has its own generator; it adds to the language file and tags written above
 subprocess.run(["python3", "tools/gen_castor.py"], check=True)
+subprocess.run(["python3", "tools/gen_rtg.py"], check=True)

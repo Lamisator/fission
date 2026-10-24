@@ -22,10 +22,10 @@ public final class StorageBlockEntities {
 	private StorageBlockEntities() {
 	}
 
-	/** Fresh fuel waiting to be loaded; sends it down fuel transfer tubes to empty fuel channels. */
+	/** Fresh fuel waiting to be loaded (as many as a double chest holds); sends it down fuel transfer tubes to empty fuel channels. */
 	public static class FuelRack extends StorageBlockEntity {
 		public FuelRack(BlockPos pos, BlockState state) {
-			super(ModBlockEntities.FUEL_RACK, pos, state, 9);
+			super(ModBlockEntities.FUEL_RACK, pos, state, 54);
 		}
 
 		@Override

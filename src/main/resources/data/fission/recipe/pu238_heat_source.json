@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "P": "fission:plutonium",
+    "Z": "fission:zircaloy_cladding",
+    "G": "fission:graphite_moderator"
+  },
+  "pattern": [
+    "PZP",
+    "ZGZ",
+    "PZP"
+  ],
+  "result": {
+    "id": "fission:pu238_heat_source"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "fission:block/rtg"
+    },
+    "facing=east": {
+      "model": "fission:block/rtg",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "fission:block/rtg",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "fission:block/rtg",
+      "y": 270
+    }
+  }
+}

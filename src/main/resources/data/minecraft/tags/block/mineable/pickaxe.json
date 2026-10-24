@@ -34,6 +34,7 @@
     "fission:solid_corium",
     "fission:station_rail",
     "fission:gantry_crane",
-    "fission:final_repository"
+    "fission:final_repository",
+    "fission:rtg"
   ]
 }

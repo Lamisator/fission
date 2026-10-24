@@ -166,5 +166,12 @@
   "block.fission.gantry_crane.mode.unload": "UNLOAD (CASTOR into storage)",
   "block.fission.gantry_crane.status": "Gantry crane: %s, power %s, %s CASTOR(s) under it, on the hook: %s, %s moved",
   "block.fission.final_repository": "Final Repository Cell",
-  "block.fission.final_repository.desc": "Copper canisters in bentonite, deep in rock: for long-lived waste and cooled spent fuel, for good."
+  "block.fission.final_repository.desc": "Copper canisters in bentonite, deep in rock: for long-lived waste and cooled spent fuel, for good.",
+  "block.fission.rtg": "Radioisotope Generator",
+  "block.fission.rtg.desc": "12 V DC from up to 4 Pu-238 heat sources, 30 W each. No fuel to feed: half power after ~445 real days.",
+  "block.fission.rtg.output": "Output %s W at 12 V",
+  "item.fission.pu238_heat_source": "Pu-238 Heat Source",
+  "item.fission.pu238_heat_source.desc": "Iridium-clad plutonium-238 oxide, 500 W of decay heat. Fuel for the radioisotope generator.",
+  "item.fission.pu238_heat_source.output": "%s W in a generator (%s %% of fresh)",
+  "item.fission.pu238_heat_source.half_life": "Half-life 87.7 years: half power after %s real days"
 }

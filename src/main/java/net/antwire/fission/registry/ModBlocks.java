@@ -13,6 +13,7 @@ import net.antwire.fission.block.PipeBlock;
 import net.antwire.fission.block.EjectaBlock;
 import net.antwire.fission.block.RadiatingBlock;
 import net.antwire.fission.block.RadiationMonitorBlock;
+import net.antwire.fission.block.RtgBlock;
 import net.antwire.fission.block.ReactorControllerBlock;
 import net.antwire.fission.block.SteamTurbineBlock;
 import net.antwire.fission.block.TubeBlock;
@@ -116,6 +117,9 @@ public final class ModBlocks {
 	public static final Block GAS_CENTRIFUGE = block("gas_centrifuge", p -> new ContainerBlock(Machines.Centrifuge::new,
 			() -> ModBlockEntities.CENTRIFUGE, (net.minecraft.world.level.block.entity.BlockEntityTicker<MachineBlockEntity>) MachineBlockEntity::serverTick,
 			Block.box(4, 0, 4, 12, 16, 12), p), props(MapColor.METAL, 4.0F, SoundType.METAL).noOcclusion(), true);
+
+	public static final Block RTG = block("rtg", RtgBlock::new,
+			props(MapColor.COLOR_GRAY, 5.0F, SoundType.METAL).requiresCorrectToolForDrops().noOcclusion(), true);
 
 	// accidents
 	public static final Block CORIUM = block("corium", CoriumBlock::new,

@@ -133,6 +133,23 @@ steam networks: that powers the pumps without going through transformers and the
 
 ![The turbine hall: steam pipe, condenser, turbine, generator and step-down transformer](docs/img/turbine_hall.png)
 
+### Radioisotope generator
+
+For power that never needs looking after: a **Radioisotope Generator** (RTG) turns the decay heat of up to four
+**Pu-238 Heat Sources** into **12 V DC** for Gridworks, about **30 W per heat source** (120 W with four). It has no
+moving parts and takes no fuel: it feeds any DC cable, battery or 12 V device it touches, day and night, until the
+plutonium has decayed. Pu-238 has a half-life of 87.7 years, which in game time is about **445 real days to half
+power** (and another 445 to a quarter). A heat source starts its clock when it first goes into a generator; its tooltip
+and bar show what it still gives, the generator's screen shows the total.
+
+A heat source is made from four plutonium, four zircaloy cladding and a graphite moderator block (real Pu-238 is bred
+from neptunium; here reactor plutonium stands in for it). It is an alpha emitter: 0.005 rad/s at one metre, half of
+which gets through the generator's casing. Use it for radio relays, beacons and lights far from any grid.
+
+| Recipe | Generator |
+|---|---|
+| Heat source: `P Z P / Z G Z / P Z P` (P plutonium, Z zircaloy cladding, G graphite moderator). Generator: `B I B / C R C / B I B` (B iron bars, I iron ingot, C copper ingot, R redstone) | ![](docs/img/gui_rtg.png) |
+
 ## The control room
 
 Wire control room equipment to the reactor with the **Data Cable**: use it on the reactor controller,
@@ -226,7 +243,7 @@ Radiation 1.5.0: three blocks of concrete leave 0.1 %).
 
 | Block | |
 |---|---|
-| **Fuel Rack** | Fresh fuel. Sends it down fuel transfer tubes to empty fuel channels (and in a running core to channels whose assembly is due for exchange, see below). A rack that finds no taker tries again after 30 seconds, so a store of hundreds of racks costs little. |
+| **Fuel Rack** | Fresh fuel: 54 assemblies, as many as a double chest holds. Sends it down fuel transfer tubes to empty fuel channels (and in a running core to channels whose assembly is due for exchange, see below). A rack that finds no taker tries again after 30 seconds, so a store of hundreds of racks costs little. |
 | **Fuel Transfer Tube** | Moves fuel assemblies. On-load refuelling: in a running core every channel exchanges its assembly at its own burnup, somewhere between 40 and 70 % of the assembly's life (spent ones always), so a core loaded all at once does not burn out all at once and fresh fuel always goes in among fuel that still has reactivity left. The old assembly stays in its channel until a fresh one arrives by tube, which takes its place over three minutes (the refuelling machine lowers it in), so the reactivity rises a few pcm a second instead of jumping; the spent one leaves by tube. Outside a reactor spent assemblies leave on their own. A column of stacked fuel channels is one pressure tube: assemblies travel up and down through it, so one tube on top of each column reaches every channel in it. |
 | **Holding Basin** | A pool for short-lived isotopes and spent fuel; the water lets through only 0.02 %. Canisters that have decayed become harmless empty canisters. Spent or discharged fuel (40 % burnup or more) that has cooled for a day goes on by tube to reprocessing (if nothing takes it, the basin tries again after 30 seconds). |
 | **Reprocessing Plant** | 230 V, 3 kW, heavily shielded (5 % gets out). Dissolves a cooled spent assembly into one canister per isotope, with as much as the rod really holds, plus plutonium and depleted uranium. Sends them out by isotope pipe. |
@@ -514,6 +531,9 @@ above the centre column.
 
 ## Changes
 
+- **1.7.0**: fuel racks hold **54 assemblies** (a double chest) instead of 9, so a magazine needs far fewer racks and the
+  ones you can reach hold six times as much; racks keep what they hold. New **Radioisotope Generator** with **Pu-238
+  Heat Sources**: 30 W per heat source at 12 V DC, half power after about 445 real days.
 - **1.6.2**: the XENON alarm no longer stays lit all the time at power. Equilibrium xenon at full power is worth about
   2800 pcm, so a fixed 500 pcm threshold lit it in normal running; it now comes on when xenon is 500 pcm above its
   equilibrium at the present power (after the power drops), and not in a core that has run out of fuel. A big plant
