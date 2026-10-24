@@ -124,10 +124,10 @@ public final class StorageBlockEntities {
 		}
 	}
 
-	/** A shielded drum for long-lived waste: it holds back about 97 % of the radiation, not all of it. */
+	/** A shielded drum for long-lived waste, 54 places: it holds back about 97 % of the radiation, not all of it. */
 	public static class StorageDrum extends StorageBlockEntity {
 		public StorageDrum(BlockPos pos, BlockState state) {
-			super(ModBlockEntities.STORAGE_DRUM, pos, state, 9);
+			super(ModBlockEntities.STORAGE_DRUM, pos, state, 54);
 		}
 
 		@Override

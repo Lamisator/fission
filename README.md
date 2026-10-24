@@ -248,7 +248,7 @@ Radiation 1.5.0: three blocks of concrete leave 0.1 %).
 | **Holding Basin** | A pool for short-lived isotopes and spent fuel; the water lets through only 0.02 %. Canisters that have decayed become harmless empty canisters. Spent or discharged fuel (40 % burnup or more) that has cooled for a day goes on by tube to reprocessing (if nothing takes it, the basin tries again after 30 seconds). |
 | **Reprocessing Plant** | 230 V, 3 kW, heavily shielded (5 % gets out). Dissolves a cooled spent assembly into one canister per isotope, with as much as the rod really holds, plus plutonium and depleted uranium. Sends them out by isotope pipe. |
 | **Isotope Pipe** | Moves canisters, plutonium, depleted uranium and debris. Each item goes to the nearest block that takes it. |
-| **Long-Term Storage Drum** | For long-lived isotopes, plutonium and debris. It holds back about 97 % of the radiation, not all of it. Put drums behind concrete. |
+| **Long-Term Storage Drum** | For long-lived isotopes, plutonium and debris: 54 places, as many as a double chest. It holds back about 97 % of the radiation, not all of it. Put drums behind concrete. |
 
 Short-lived isotopes (half-life under a year) go only into holding basins, long-lived ones only into
 drums. Tooltips show each canister's isotope, half-life, activity and dose rate.
@@ -531,6 +531,7 @@ above the centre column.
 
 ## Changes
 
+- **1.7.1**: long-term storage drums hold **54** pieces (a double chest) instead of 9; drums keep what they hold.
 - **1.7.0**: fuel racks hold **54 assemblies** (a double chest) instead of 9, so a magazine needs far fewer racks and the
   ones you can reach hold six times as much; racks keep what they hold. New **Radioisotope Generator** with **Pu-238
   Heat Sources**: 30 W per heat source at 12 V DC, half power after about 445 real days.

@@ -23,7 +23,7 @@ import java.util.Locale;
 
 /**
  * Fission 1.7: a radioisotope generator with four Pu-238 heat sources (one 30 years old) charging a 12 V battery and
- * lighting an LED lamp, its screen, and the 54-place fuel rack. Run with {@code ./gradlew runClientGameTest -Pscenes=rtg}.
+ * lighting an LED lamp, its screen, and the 54-place fuel rack and storage drum. Run with {@code ./gradlew runClientGameTest -Pscenes=rtg}.
  */
 public class RtgTour implements FabricClientGameTest {
 	private int g;
@@ -66,6 +66,9 @@ public class RtgTour implements FabricClientGameTest {
 			this.open(context, sp, new BlockPos(4, this.g, 0));
 			context.takeScreenshot("fuel_rack_54");
 			context.runOnClient(mc -> mc.gui.setScreen(null));
+			this.open(context, sp, new BlockPos(6, this.g, 0));
+			context.takeScreenshot("storage_drum_54");
+			context.runOnClient(mc -> mc.gui.setScreen(null));
 		}
 	}
 
@@ -95,6 +98,11 @@ public class RtgTour implements FabricClientGameTest {
 		for (int i = 0; i < 40; i++) {
 			rack.setItem(i, new ItemStack(ModItems.LEU_FUEL_ROD));
 		}
+		level.setBlock(new BlockPos(6, y, 0), ModBlocks.STORAGE_DRUM.defaultBlockState(), Block.UPDATE_ALL);
+		StorageBlockEntity drum = (StorageBlockEntity) level.getBlockEntity(new BlockPos(6, y, 0));
+		for (int i = 0; i < 54; i++) {
+			drum.setItem(i, new ItemStack(ModItems.DEPLETED_URANIUM));
+		}
 	}
 
 	private String report(ServerLevel level) {
@@ -102,8 +110,9 @@ public class RtgTour implements FabricClientGameTest {
 		BatteryBlockEntity bat = (BatteryBlockEntity) level.getBlockEntity(new BlockPos(1, this.g, 0));
 		StorageBlockEntity rack = (StorageBlockEntity) level.getBlockEntity(new BlockPos(4, this.g, 0));
 		boolean stamped = rtg.getItem(0).has(ModComponents.HEAT_SOURCE);
-		return String.format(Locale.ROOT, "RTG %.2f W (stamped %s, old one %.2f W), battery %.3f Wh, lamp %s, rack %d places, %.3f rad/s inside",
+		return String.format(Locale.ROOT, "RTG %.2f W (stamped %s, old one %.2f W), battery %.3f Wh, lamp %s, rack %d places, %.3f rad/s inside, drum %d places",
 				rtg.watts(), stamped, net.antwire.fission.item.HeatSourceItem.watts(rtg.getItem(3), level.getGameTime()), bat.storedWh(),
-				level.getBlockState(new BlockPos(-1, this.g, 0)), rack.getContainerSize(), rack.contentsRads);
+				level.getBlockState(new BlockPos(-1, this.g, 0)), rack.getContainerSize(), rack.contentsRads,
+				((StorageBlockEntity) level.getBlockEntity(new BlockPos(6, this.g, 0))).getContainerSize());
 	}
 }

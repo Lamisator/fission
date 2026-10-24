@@ -674,7 +674,7 @@ lang = {
     "block.fission.isotope_pipe": "Isotope Pipe", "block.fission.isotope_pipe.desc": "Shielded pipe for canisters, plutonium and other waste.",
     "block.fission.fuel_rack": "Fuel Rack", "block.fission.fuel_rack.desc": "Fresh fuel. Sends it down fuel transfer tubes to empty channels.",
     "block.fission.holding_basin": "Holding Basin", "block.fission.holding_basin.desc": "Pool for short-lived isotopes and spent fuel. Water shields almost everything.",
-    "block.fission.storage_drum": "Long-Term Storage Drum", "block.fission.storage_drum.desc": "For long-lived isotopes. Holds back about 97 % of their radiation.",
+    "block.fission.storage_drum": "Long-Term Storage Drum", "block.fission.storage_drum.desc": "For long-lived isotopes, 54 places. Holds back about 97 % of their radiation.",
     "block.fission.reprocessing_plant": "Reprocessing Plant", "block.fission.reprocessing_plant.desc": "230 V, 3 kW. Splits cooled spent fuel into isotopes.",
     "block.fission.gas_centrifuge": "Gas Centrifuge", "block.fission.gas_centrifuge.desc": "230 V, 2 kW. Enriches yellowcake: 4 in, 1 enriched + 3 depleted out.",
     "block.fission.corium": "Molten Corium", "block.fission.solid_corium": "Solidified Corium",
