@@ -132,7 +132,7 @@
   "screen.fission.period": "PERIODE",
   "screen.fission.channels": "%s Kanäle  Spitze %s",
   "screen.fission.control_rods": "STEUERSTÄBE",
-  "screen.fission.rods_inserted": "%s %% eingefahren",
+  "screen.fission.rods_inserted": "%s %% ein",
   "screen.fission.rod_target": "Soll %s %%",
   "screen.fission.trend": "LEISTUNG 2 min (log)",
   "screen.fission.gauge.fuel": "BRENNST.",
