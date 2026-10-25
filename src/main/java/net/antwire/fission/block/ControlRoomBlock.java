@@ -96,7 +96,7 @@ public class ControlRoomBlock extends BaseEntityBlock {
 					level.setBlock(pos, state.setValue(OPEN, !state.getValue(OPEN)), Block.UPDATE_ALL);
 					level.playSound(null, pos, SoundEvents.IRON_TRAPDOOR_OPEN, SoundSource.BLOCKS, 0.6F, 1.4F);
 				} else {
-					this.press(level, pos, state, be, "Manual SCRAM (" + player.getName().getString() + ")");
+					this.press(level, pos, state, be, ReactorControllerBlockEntity.tripKey("fission.trip.manual", player.getName().getString()));
 				}
 			}
 			default -> {

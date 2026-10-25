@@ -115,7 +115,7 @@ public final class ReactorExplosion {
 			return;
 		}
 		if (external && loaded == 0) {
-			Fission.LOGGER.warn("Reactor at {} destroyed ({}), no fuel in it", reactor.getBlockPos().toShortString(), why);
+			Fission.LOGGER.warn("Reactor at {} destroyed ({}), no fuel in it", reactor.getBlockPos().toShortString(), ReactorControllerBlockEntity.tripText(why).getString());
 			return;
 		}
 		long t0 = System.nanoTime();
@@ -123,7 +123,7 @@ public final class ReactorExplosion {
 		int fuel = core.fuel.size();
 		int maxCoreFlying = external ? 2 * MAX_CORE_FLYING : MAX_CORE_FLYING;
 		Vec3 center = new Vec3((core.minX + core.maxX + 1) / 2.0, (core.minY + core.maxY + 1) / 2.0, (core.minZ + core.maxZ + 1) / 2.0);
-		Fission.LOGGER.warn("Reactor at {} EXPLODED ({}, severity {}), {} fuel channels", reactor.getBlockPos().toShortString(), why, y, fuel);
+		Fission.LOGGER.warn("Reactor at {} EXPLODED ({}, severity {}), {} fuel channels", reactor.getBlockPos().toShortString(), ReactorControllerBlockEntity.tripText(why).getString(), y, fuel);
 		double need = required(fuel, y);
 		int spread = (int) Math.ceil(SCAN_HEIGHT * CONE);
 		// which columns hold: right above the core the full blast, further out less, and only from where the cone reaches

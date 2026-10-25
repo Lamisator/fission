@@ -510,7 +510,7 @@ public class GantryCraneBlockEntity extends BlockEntity implements ElectricDevic
 	public Component status() {
 		ServerLevel level = (ServerLevel) this.level;
 		int wagons = level == null ? 0 : this.wagons(level).size();
-		String what = this.carrying.isEmpty() ? "-" : this.carrying.getHoverName().getString();
+		Component what = this.carrying.isEmpty() ? Component.literal("-") : this.carrying.getHoverName();
 		return Component.translatable("block.fission.gantry_crane.status",
 				Component.translatable("block.fission.gantry_crane.mode." + this.mode.name().toLowerCase(Locale.ROOT)),
 				Component.translatable(this.powered() ? "fission.yes" : "fission.no"), wagons, what, this.moved).withStyle(ChatFormatting.YELLOW);

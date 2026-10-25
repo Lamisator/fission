@@ -74,12 +74,12 @@ public enum Isotope {
 		return tbq * this.gamma * Nuclear.RADS_PER_SV_H;
 	}
 
-	public String halfLifeText() {
+	public net.minecraft.network.chat.Component halfLifeText() {
 		double s = this.halfLife;
-		if (s < DAYS()) return String.format(Locale.ROOT, "%.1f h", s / HOURS());
-		if (s < YEARS()) return String.format(Locale.ROOT, "%.1f d", s / DAYS());
-		if (s < 1e4 * YEARS()) return String.format(Locale.ROOT, "%.1f y", s / YEARS());
-		return String.format(Locale.ROOT, "%.3g y", s / YEARS());
+		if (s < DAYS()) return net.minecraft.network.chat.Component.translatable("fission.unit.hours", String.format(Locale.ROOT, "%.1f", s / HOURS()));
+		if (s < YEARS()) return net.minecraft.network.chat.Component.translatable("fission.unit.days", String.format(Locale.ROOT, "%.1f", s / DAYS()));
+		if (s < 1e4 * YEARS()) return net.minecraft.network.chat.Component.translatable("fission.unit.years", String.format(Locale.ROOT, "%.1f", s / YEARS()));
+		return net.minecraft.network.chat.Component.translatable("fission.unit.years", String.format(Locale.ROOT, "%.3g", s / YEARS()));
 	}
 
 	private static double HOURS() {

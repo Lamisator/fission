@@ -122,21 +122,22 @@ public final class ReactorFires {
 			if (out != null) {
 				it.remove();
 				changed = true;
-				Fission.LOGGER.info("The reactor fire at {} {} is out ({})", (f.minX + f.maxX) / 2, (f.minZ + f.maxZ) / 2, out);
+				Component why = Component.translatable("fission.fire.out." + out);
+				Fission.LOGGER.info("The reactor fire at {} {} is out ({})", (f.minX + f.maxX) / 2, (f.minZ + f.maxZ) / 2, why.getString());
 				Vec3 c = centre(f);
 				for (ServerPlayer p : level.players()) {
-					if (p.distanceToSqr(c) < 256 * 256) p.sendSystemMessage(Component.literal("The reactor fire is out (" + out + ")."));
+					if (p.distanceToSqr(c) < 256 * 256) p.sendSystemMessage(Component.translatable("fission.fire.out", why));
 				}
 			}
 		}
 		if (changed) save();
 	}
 
-	/** One second of burning. @return why it went out, or null while it burns */
+	/** One second of burning. @return why it went out (fission.fire.out.&lt;id&gt;), or null while it burns */
 	private static String burn(ServerLevel level, Fire f) {
 		long now = level.getGameTime();
 		long age = now - f.started;
-		if (age > BURN_OUT) return "burnt out";
+		if (age > BURN_OUT) return "burnt_out";
 		Vec3 c = centre(f);
 		if (level.isLoaded(BlockPos.containing(c))) {
 			int columns = 0, open = 0, covered = 0, burning = 0;
@@ -161,7 +162,7 @@ public final class ReactorFires {
 				}
 			}
 			if (columns > 0) {
-				if (burning == 0) return "nothing left to burn";
+				if (burning == 0) return "nothing_left";
 				f.open = (double) open / columns;
 				f.covered = (double) covered / burning;
 			}
@@ -242,13 +243,13 @@ public final class ReactorFires {
 		return n;
 	}
 
-	public static List<String> describe(long now) {
-		List<String> out = new ArrayList<>();
+	public static List<Component> describe(long now) {
+		List<Component> out = new ArrayList<>();
 		for (Fire f : fires) {
 			Vec3 c = centre(f);
-			out.add(String.format(Locale.ROOT, "core fire at %.0f %d %.0f, burning %.1f days, %d %% open to the sky, %d %% covered%s", c.x, f.top, c.z,
-					(now - f.started) / 24000.0, Math.round(f.open * 100), Math.round(f.covered * 100),
-					f.smothered > 0 ? String.format(Locale.ROOT, " (smothering: %d s)", f.smothered / 20) : ""));
+			out.add(Component.translatable("fission.fire.describe", String.format(Locale.ROOT, "%.0f %d %.0f", c.x, f.top, c.z),
+					String.format(Locale.ROOT, "%.1f", (now - f.started) / 24000.0), Math.round(f.open * 100), Math.round(f.covered * 100),
+					f.smothered > 0 ? Component.translatable("fission.fire.smothering", f.smothered / 20) : ""));
 		}
 		return out;
 	}

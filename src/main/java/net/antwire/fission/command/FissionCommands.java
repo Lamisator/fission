@@ -27,9 +27,9 @@ public final class FissionCommands {
 	public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
 		dispatcher.register(Commands.literal("fission")
 				.then(Commands.literal("fires").executes(ctx -> {
-					List<String> lines = ReactorFires.describe(ctx.getSource().getLevel().getGameTime());
-					if (lines.isEmpty()) ctx.getSource().sendSuccess(() -> Component.literal("No reactor is burning."), false);
-					for (String line : lines) ctx.getSource().sendSuccess(() -> Component.literal(line), false);
+					List<Component> lines = ReactorFires.describe(ctx.getSource().getLevel().getGameTime());
+					if (lines.isEmpty()) ctx.getSource().sendSuccess(() -> Component.translatable("fission.command.no_fires"), false);
+					for (Component line : lines) ctx.getSource().sendSuccess(() -> line, false);
 					return lines.size();
 				}))
 				.then(Commands.literal("extinguish").requires(s -> s.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER))
@@ -44,7 +44,7 @@ public final class FissionCommands {
 
 	private static int extinguish(CommandContext<CommandSourceStack> ctx, double radius) {
 		int n = ReactorFires.extinguish(ctx.getSource().getLevel(), ctx.getSource().getPosition(), radius);
-		ctx.getSource().sendSuccess(() -> Component.literal(n == 0 ? "No reactor burning within " + (int) radius + " blocks" : n + " reactor fire(s) put out"), true);
+		ctx.getSource().sendSuccess(() -> (n == 0 ? Component.translatable("fission.command.none_within", (int) radius) : Component.translatable("fission.command.put_out", n)), true);
 		return n;
 	}
 
@@ -52,11 +52,11 @@ public final class FissionCommands {
 		BlockPos pos = BlockPosArgument.getLoadedBlockPos(ctx, "controller");
 		var level = ctx.getSource().getLevel();
 		if (!(level.getBlockEntity(pos) instanceof ReactorControllerBlockEntity reactor) || reactor.core == null || !reactor.core.valid()) {
-			ctx.getSource().sendFailure(Component.literal("No reactor controller with a valid core at " + pos.toShortString()));
+			ctx.getSource().sendFailure(Component.translatable("fission.command.no_controller", pos.toShortString()));
 			return 0;
 		}
-		ReactorExplosion.explode(level, reactor, severity, "prompt critical power excursion (by command)");
-		ctx.getSource().sendSuccess(() -> Component.literal("Prompt critical excursion at " + pos.toShortString()), true);
+		ReactorExplosion.explode(level, reactor, severity, ReactorControllerBlockEntity.tripKey("fission.trip.excursion_command"));
+		ctx.getSource().sendSuccess(() -> Component.translatable("fission.command.excursion", pos.toShortString()), true);
 		return 1;
 	}
 }

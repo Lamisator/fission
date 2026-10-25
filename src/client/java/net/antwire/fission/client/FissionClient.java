@@ -16,6 +16,7 @@ import net.minecraft.client.gui.screens.MenuScreens;
 public class FissionClient implements ClientModInitializer {
 	@Override
 	public void onInitializeClient() {
+		AutoLanguage.apply();
 		ClientTime.now = () -> Minecraft.getInstance().level == null ? 0 : Minecraft.getInstance().level.getGameTime();
 		ClientHooks.openReactor = pos -> Minecraft.getInstance().gui.setScreen(new ReactorScreen(pos));
 		ClientHooks.turbineSound = t -> Minecraft.getInstance().getSoundManager().play(new LoopSound(ModSounds.TURBINE, t, 0.8F,

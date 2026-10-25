@@ -105,7 +105,7 @@ public final class ReactorNetwork {
 			}
 			switch (p.cmd) {
 				case CMD_ROD_TARGET -> r.setRodTarget(p.value);
-				case CMD_SCRAM -> r.scram("Manual SCRAM (" + player.getName().getString() + ")");
+				case CMD_SCRAM -> r.scram(ReactorControllerBlockEntity.tripKey("fission.trip.manual", player.getName().getString()));
 				case CMD_RESET -> r.reset();
 				case CMD_AUTO -> r.setAuto(p.value > 0.5);
 				case CMD_SETPOINT -> r.setSetpoint(p.value);

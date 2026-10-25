@@ -1,5 +1,6 @@
 package net.antwire.fission.client;
 
+import net.antwire.fission.block.entity.ReactorControllerBlockEntity;
 import net.antwire.fission.network.ReactorNetwork;
 import net.antwire.fission.network.ReactorNetwork.Status;
 import net.antwire.fission.reactor.Alarm;
@@ -141,25 +142,27 @@ public class ReactorScreen extends Screen {
 		double power = v(s, V_THERMAL);
 		double rho = v(s, V_RHO);
 		boolean scram = v(s, V_SCRAM) > 0.5;
-		String state = v(s, V_DESTROYED) > 0.5 ? "DESTROYED" : v(s, V_CHANNELS) < 1 ? "NO CORE" : scram ? "SCRAM"
-				: rho > 0.0003 ? "SUPERCRITICAL" : rho < -0.0003 ? "SUBCRITICAL" : "CRITICAL";
-		int stateColor = scram || state.equals("DESTROYED") ? RED : state.equals("CRITICAL") ? GREEN : AMBER;
+		String stateId = v(s, V_DESTROYED) > 0.5 ? "destroyed" : v(s, V_CHANNELS) < 1 ? "no_core" : scram ? "scram"
+				: rho > 0.0003 ? "supercritical" : rho < -0.0003 ? "subcritical" : "critical";
+		int stateColor = scram || stateId.equals("destroyed") ? RED : stateId.equals("critical") ? GREEN : AMBER;
+		String state = t("screen.fission.state." + stateId);
 		g.text(this.font, state, x + W - 8 - this.font.width(state), y + 6, stateColor, false);
 		if (scram && !s.trip().isEmpty()) {
-			g.text(this.font, s.trip(), x + W - 8 - this.font.width(s.trip()), y + 16, RED, false);
+			String trip = ReactorControllerBlockEntity.tripText(s.trip()).getString();
+			g.text(this.font, trip, x + W - 8 - this.font.width(trip), y + 16, RED, false);
 		}
 
 		// digital readouts
-		this.readout(g, x + 8, y + 28, 98, "THERMAL POWER", mw(power), String.format(Locale.ROOT, "%.1f %% of %s", power / nominal * 100, mw(nominal)),
+		this.readout(g, x + 8, y + 28, 98, t("screen.fission.thermal_power"), mw(power), t("screen.fission.of_nominal", String.format(Locale.ROOT, "%.1f", power / nominal * 100), mw(nominal)),
 				power > nominal ? RED : GREEN);
-		this.readout(g, x + 110, y + 28, 98, "REACTIVITY", String.format(Locale.ROOT, "%+.0f pcm", rho * 1e5),
+		this.readout(g, x + 110, y + 28, 98, t("screen.fission.reactivity"), String.format(Locale.ROOT, "%+.0f pcm", rho * 1e5),
 				String.format(Locale.ROOT, "k-eff %.4f", v(s, V_K)), rho > 0.00325 ? RED : rho > 0 ? AMBER : GREEN);
 		double period = v(s, V_PERIOD);
-		this.readout(g, x + 8, y + 66, 98, "PERIOD", Math.abs(period) > 1e5 ? "∞" : String.format(Locale.ROOT, "%.1f s", period),
-				String.format(Locale.ROOT, "%d channels  peak %.2f", (int) v(s, V_CHANNELS), v(s, V_PEAKING)),
+		this.readout(g, x + 8, y + 66, 98, t("screen.fission.period"), Math.abs(period) > 1e5 ? "∞" : String.format(Locale.ROOT, "%.1f s", period),
+				t("screen.fission.channels", (int) v(s, V_CHANNELS), String.format(Locale.ROOT, "%.2f", v(s, V_PEAKING))),
 				period > 0 && period < 30 ? RED : TEXT);
-		this.readout(g, x + 110, y + 66, 98, "CONTROL RODS", String.format(Locale.ROOT, "%.1f %% in", v(s, V_RODS) * 100),
-				String.format(Locale.ROOT, "target %.1f %%", v(s, V_ROD_TARGET) * 100), TEXT);
+		this.readout(g, x + 110, y + 66, 98, t("screen.fission.control_rods"), t("screen.fission.rods_inserted", String.format(Locale.ROOT, "%.1f", v(s, V_RODS) * 100)),
+				t("screen.fission.rod_target", String.format(Locale.ROOT, "%.1f", v(s, V_ROD_TARGET) * 100)), TEXT);
 
 		// trend: thermal power, log scale 1 W .. 2x nominal
 		int tx = x + 216, ty = y + 28, tw = 196, th = 72;
@@ -178,22 +181,22 @@ public class ReactorScreen extends Screen {
 			int yy = ty + th - (int) Math.clamp(th * (Math.log10(val) - lo) / (hi - lo), 0, th);
 			g.fill(x0, yy, x0 + Math.max(1, tw / hist.length), yy + 2, power > nominal ? RED : GREEN);
 		}
-		g.text(this.font, "POWER 2 min (log)", tx + 3, ty + 2, DIM, false);
+		g.text(this.font, t("screen.fission.trend"), tx + 3, ty + 2, DIM, false);
 
 		// gauges
 		int gx = x + 8, gy = y + 108;
-		this.gauge(g, gx, gy, "FUEL", v(s, V_HOT_TEMP), 3000, String.format(Locale.ROOT, "%.0f°", v(s, V_HOT_TEMP)), new double[]{1200, 1500, 2800});
-		this.gauge(g, gx + 40, gy, "PRESS", v(s, V_PRESSURE), 160, String.format(Locale.ROOT, "%.0f bar", v(s, V_PRESSURE)), new double[]{70, 85, 95, 150});
-		this.gauge(g, gx + 80, gy, "LEVEL", v(s, V_LEVEL) * 100, 100, String.format(Locale.ROOT, "%.0f %%", v(s, V_LEVEL) * 100), new double[]{-50, -70});
-		this.gauge(g, gx + 120, gy, "STEAM", v(s, V_STEAM), Math.max(2, nominal / 2e6), String.format(Locale.ROOT, "%.1f kg/s", v(s, V_STEAM)), new double[0]);
-		this.gauge(g, gx + 160, gy, "FEED", v(s, V_FEED), Math.max(2, nominal / 2e6), String.format(Locale.ROOT, "%.1f kg/s", v(s, V_FEED)), new double[0]);
-		this.gauge(g, gx + 200, gy, "XENON", v(s, V_XENON) * 1e5, 4000, String.format(Locale.ROOT, "%.0f pcm", v(s, V_XENON) * 1e5), new double[0]);
-		this.gauge(g, gx + 240, gy, "DECAY", v(s, V_DECAY) / nominal * 100, 7, mw(v(s, V_DECAY)), new double[0]);
+		this.gauge(g, gx, gy, t("screen.fission.gauge.fuel"), v(s, V_HOT_TEMP), 3000, String.format(Locale.ROOT, "%.0f°", v(s, V_HOT_TEMP)), new double[]{1200, 1500, 2800});
+		this.gauge(g, gx + 40, gy, t("screen.fission.gauge.pressure"), v(s, V_PRESSURE), 160, String.format(Locale.ROOT, "%.0f bar", v(s, V_PRESSURE)), new double[]{70, 85, 95, 150});
+		this.gauge(g, gx + 80, gy, t("screen.fission.gauge.level"), v(s, V_LEVEL) * 100, 100, String.format(Locale.ROOT, "%.0f %%", v(s, V_LEVEL) * 100), new double[]{-50, -70});
+		this.gauge(g, gx + 120, gy, t("screen.fission.gauge.steam"), v(s, V_STEAM), Math.max(2, nominal / 2e6), String.format(Locale.ROOT, "%.1f kg/s", v(s, V_STEAM)), new double[0]);
+		this.gauge(g, gx + 160, gy, t("screen.fission.gauge.feed"), v(s, V_FEED), Math.max(2, nominal / 2e6), String.format(Locale.ROOT, "%.1f kg/s", v(s, V_FEED)), new double[0]);
+		this.gauge(g, gx + 200, gy, t("screen.fission.gauge.xenon"), v(s, V_XENON) * 1e5, 4000, String.format(Locale.ROOT, "%.0f pcm", v(s, V_XENON) * 1e5), new double[0]);
+		this.gauge(g, gx + 240, gy, t("screen.fission.gauge.decay"), v(s, V_DECAY) / nominal * 100, 7, mw(v(s, V_DECAY)), new double[0]);
 
 		// core map
 		int mx = x + 300, my = y + 108, mw = 112, mh = 60;
 		g.fill(mx, my, mx + mw, my + mh, PANEL);
-		g.text(this.font, "CORE", mx + 3, my + 2, DIM, false);
+		g.text(this.font, t("screen.fission.core"), mx + 3, my + 2, DIM, false);
 		int cw = s.mapW(), ch = s.mapH();
 		if (cw > 0 && ch > 0) {
 			int cell = Math.max(2, Math.min((mw - 6) / cw, (mh - 14) / ch));
@@ -229,22 +232,23 @@ public class ReactorScreen extends Screen {
 		int cy0 = y + 210;
 		// rod slider: left = fully inserted, right = fully withdrawn
 		int sx = x + 8, sw = 200;
-		g.text(this.font, "RODS  IN", sx, cy0, DIM, false);
-		g.text(this.font, "OUT", sx + sw - this.font.width("OUT"), cy0, DIM, false);
+		g.text(this.font, t("screen.fission.rods_in"), sx, cy0, DIM, false);
+		String outLabel = t("screen.fission.rods_out");
+		g.text(this.font, outLabel, sx + sw - this.font.width(outLabel), cy0, DIM, false);
 		g.fill(sx, cy0 + 12, sx + sw, cy0 + 22, PANEL);
 		int actual = sx + (int) ((1 - v(s, V_RODS)) * sw);
 		g.fill(sx, cy0 + 14, actual, cy0 + 20, 0xFF3070C0);
 		int target = sx + (int) ((1 - v(s, V_ROD_TARGET)) * sw);
 		g.fill(target - 2, cy0 + 10, target + 2, cy0 + 24, scram ? 0xFF808080 : AMBER);
-		this.button(g, sx, cy0 + 28, 30, "IN 5", mouseX, mouseY, !scram);
-		this.button(g, sx + 32, cy0 + 28, 30, "IN 1", mouseX, mouseY, !scram);
-		this.button(g, sx + 138, cy0 + 28, 30, "OUT1", mouseX, mouseY, !scram);
-		this.button(g, sx + 170, cy0 + 28, 30, "OUT5", mouseX, mouseY, !scram);
+		this.button(g, sx, cy0 + 28, 30, t("screen.fission.button.in5"), mouseX, mouseY, !scram);
+		this.button(g, sx + 32, cy0 + 28, 30, t("screen.fission.button.in1"), mouseX, mouseY, !scram);
+		this.button(g, sx + 138, cy0 + 28, 30, t("screen.fission.button.out1"), mouseX, mouseY, !scram);
+		this.button(g, sx + 170, cy0 + 28, 30, t("screen.fission.button.out5"), mouseX, mouseY, !scram);
 		boolean auto = v(s, V_AUTO) > 0.5;
-		this.button(g, sx + 66, cy0 + 28, 68, auto ? "AUTO ON" : "AUTO OFF", mouseX, mouseY, !scram);
+		this.button(g, sx + 66, cy0 + 28, 68, t(auto ? "screen.fission.button.auto_on" : "screen.fission.button.auto_off"), mouseX, mouseY, !scram);
 		// setpoint
 		int px = x + 216;
-		g.text(this.font, "SETPOINT", px, cy0, DIM, false);
+		g.text(this.font, t("screen.fission.setpoint"), px, cy0, DIM, false);
 		g.fill(px, cy0 + 12, px + 70, cy0 + 26, PANEL);
 		if (this.setpointText != null) {
 			// typing a setpoint: amber frame, the digits, a blinking caret and the unit
@@ -263,25 +267,27 @@ public class ReactorScreen extends Screen {
 		this.button(g, px + 36, cy0 + 28, 34, "×2", mouseX, mouseY, true);
 		// protection system
 		boolean rps = v(s, V_RPS) > 0.5;
-		this.button(g, px + 76, cy0 + 12, 46, rps ? "RPS ON" : "BYPASS", mouseX, mouseY, true);
+		this.button(g, px + 76, cy0 + 12, 46, t(rps ? "screen.fission.button.rps_on" : "screen.fission.button.bypass"), mouseX, mouseY, true);
 		if (!rps) {
 			g.fill(px + 76, cy0 + 12, px + 122, cy0 + 13, RED);
 		}
-		this.button(g, px + 76, cy0 + 28, 46, "RESET", mouseX, mouseY, scram);
+		this.button(g, px + 76, cy0 + 28, 46, t("screen.fission.button.reset"), mouseX, mouseY, scram);
 		// SCRAM: a red mushroom button under a hinged guard
 		int bx = x + W - 66, by = cy0 + 2;
 		g.fill(bx, by, bx + 58, by + 44, 0xFF202020);
 		int r = 0xFFD02020;
 		g.fill(bx + 9, by + 7, bx + 49, by + 37, scram ? 0xFF801010 : r);
 		g.fill(bx + 13, by + 11, bx + 45, by + 33, scram ? 0xFF701010 : 0xFFE84040);
-		g.text(this.font, "SCRAM", bx + 29 - this.font.width("SCRAM") / 2, by + 18, 0xFFFFFFFF, false);
+		String scramLabel = t("screen.fission.button.scram");
+		g.text(this.font, scramLabel, bx + 29 - this.font.width(scramLabel) / 2, by + 18, 0xFFFFFFFF, false);
 		if (!this.coverOpen) {
 			// clear plastic guard with yellow-black edge
 			g.fill(bx + 4, by + 3, bx + 54, by + 41, 0x70C8D8E8);
 			for (int i = 0; i < 50; i += 6) {
 				g.fill(bx + 4 + i, by + 3, bx + 7 + i, by + 6, 0xFFE8C020);
 			}
-			g.text(this.font, "LIFT", bx + 29 - this.font.width("LIFT") / 2, by + 30, 0xFF303030, false);
+			String lift = t("screen.fission.button.lift");
+			g.text(this.font, lift, bx + 29 - this.font.width(lift) / 2, by + 30, 0xFF303030, false);
 		}
 	}
 
@@ -330,6 +336,10 @@ public class ReactorScreen extends Screen {
 		boolean hover = mx >= x && mx < x + w && my >= y && my < y + 14;
 		g.fill(x, y, x + w, y + 14, enabled ? (hover ? 0xFF5A626C : 0xFF444A52) : 0xFF33373C);
 		g.text(this.font, label, x + w / 2 - this.font.width(label) / 2, y + 3, enabled ? TEXT : 0xFF6A7078, false);
+	}
+
+	private static String t(String key, Object... args) {
+		return Component.translatable(key, args).getString();
 	}
 
 	private static String mw(double w) {

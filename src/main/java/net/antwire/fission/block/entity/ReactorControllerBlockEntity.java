@@ -20,6 +20,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
@@ -151,6 +152,26 @@ public class ReactorControllerBlockEntity extends BlockEntity {
 
 	// ------------------------------------------------------------------ commands
 
+	/**
+	 * A trip reason as stored and synced: {@code "translation.key|arg|arg"}, so every client reads it in its own
+	 * language. Anything not starting with {@code fission.} (old saves, other mods' reasons) is shown as it is.
+	 */
+	public static String tripKey(String key, Object... args) {
+		StringBuilder b = new StringBuilder(key);
+		for (Object a : args) {
+			b.append('|').append(a);
+		}
+		return b.toString();
+	}
+
+	public static Component tripText(String trip) {
+		if (!trip.startsWith("fission.")) {
+			return Component.literal(trip);
+		}
+		String[] p = trip.split("\\|", -1);
+		return Component.translatable(p[0], (Object[]) java.util.Arrays.copyOfRange(p, 1, p.length));
+	}
+
 	public void scram(String why) {
 		if (!this.scram) {
 			this.scram = true;
@@ -159,7 +180,7 @@ public class ReactorControllerBlockEntity extends BlockEntity {
 			if (this.level != null) {
 				this.level.playSound(null, this.worldPosition, ModSounds.SCRAM, SoundSource.BLOCKS, 2.0F, 1.0F);
 			}
-			Fission.LOGGER.info("Reactor at {} SCRAM: {}", this.worldPosition.toShortString(), why);
+			Fission.LOGGER.info("Reactor at {} SCRAM: {}", this.worldPosition.toShortString(), tripText(why).getString());
 		}
 	}
 
@@ -227,7 +248,7 @@ public class ReactorControllerBlockEntity extends BlockEntity {
 		}
 		int n = core.fuel.size();
 		if (level.hasNeighborSignal(this.worldPosition)) {
-			this.scram("Redstone SCRAM signal");
+			this.scram(tripKey("fission.trip.redstone"));
 		}
 		// control rods: the drives move them 0.5 %/s (about 100 pcm/s in a typical core), a SCRAM drops them in three seconds
 		double speed = this.scram ? 0.35 : 0.005;
@@ -293,11 +314,11 @@ public class ReactorControllerBlockEntity extends BlockEntity {
 		this.thermal(level, n, cap);
 		// accidents
 		if (this.pressure > 150) {
-			ReactorExplosion.explode(level, this, 0.5, "pressure vessel rupture");
+			ReactorExplosion.explode(level, this, 0.5, tripKey("fission.trip.vessel_rupture"));
 			return;
 		}
 		if (this.power > 25 * this.nominal()) {
-			ReactorExplosion.explode(level, this, ReactorExplosion.severity(this.rho, BETA), "prompt critical power excursion");
+			ReactorExplosion.explode(level, this, ReactorExplosion.severity(this.rho, BETA), tripKey("fission.trip.excursion"));
 			return;
 		}
 		if (this.hotTemp > MELT_TEMP) {
@@ -417,11 +438,11 @@ public class ReactorControllerBlockEntity extends BlockEntity {
 	public @Nullable String tripCondition() {
 		double nominal = this.nominal();
 		double pth = this.thermalPower();
-		if (this.power > 1.15 * nominal) return "High power: " + Math.round(this.power / nominal * 100) + " %";
-		if (this.period > 0 && this.period < 10 && this.power > 0.001 * nominal) return String.format(java.util.Locale.ROOT, "Short period: %.1f s", this.period);
-		if (this.hotTemp > 1500) return "High fuel temperature: " + Math.round(this.hotTemp) + " °C";
-		if (this.water < 0.5 * this.capacity() && (this.rods < 0.99 || pth > 0.01 * nominal)) return "Low water level: " + Math.round(this.water / this.capacity() * 100) + " %";
-		if (this.pressure > 95) return "High pressure: " + Math.round(this.pressure) + " bar";
+		if (this.power > 1.15 * nominal) return tripKey("fission.trip.high_power", Math.round(this.power / nominal * 100));
+		if (this.period > 0 && this.period < 10 && this.power > 0.001 * nominal) return tripKey("fission.trip.short_period", String.format(java.util.Locale.ROOT, "%.1f", this.period));
+		if (this.hotTemp > 1500) return tripKey("fission.trip.high_fuel_temp", Math.round(this.hotTemp));
+		if (this.water < 0.5 * this.capacity() && (this.rods < 0.99 || pth > 0.01 * nominal)) return tripKey("fission.trip.low_water", Math.round(this.water / this.capacity() * 100));
+		if (this.pressure > 95) return tripKey("fission.trip.high_pressure", Math.round(this.pressure));
 		return null;
 	}
 
@@ -597,7 +618,7 @@ public class ReactorControllerBlockEntity extends BlockEntity {
 		}
 		if (melted > 0) {
 			Fission.LOGGER.warn("Reactor at {}: {} fuel channels melted", this.worldPosition.toShortString(), melted);
-			this.scram("Core damage: fuel melting");
+			this.scram(tripKey("fission.trip.core_damage"));
 			this.markFuelDirty();
 			this.nextScan = 0;
 			this.rescan(level);

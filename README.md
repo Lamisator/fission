@@ -531,6 +531,7 @@ above the centre column.
 
 ## Changes
 
+- **1.8.0**: German translation; the game language follows the system language.
 - **1.7.1**: long-term storage drums hold **54** pieces (a double chest) instead of 9; drums keep what they hold.
 - **1.7.0**: fuel racks hold **54 assemblies** (a double chest) instead of 9, so a magazine needs far fewer racks and the
   ones you can reach hold six times as much; racks keep what they hold. New **Radioisotope Generator** with **Pu-238
